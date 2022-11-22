@@ -14,3 +14,5 @@ from users.models import User
 #리눅스 crontab으로 하루에 한번 씩 자동으로 실행되게 함(서버 배포 이후)
 user = User.objects.filter(is_admin=False) and User.objects.filter(retention_period= str(timezone.now().date()))
 user.update(status="S")
+
+User.objects.filter(today_point=True).update(today_point=False)
