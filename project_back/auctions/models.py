@@ -1,12 +1,12 @@
 from django.db import models
 from users.models import User
-# from prints.models import Print
+# from paintings.models import Painting
 
 
 
 class Auction(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    # print = models.ForeignKey(Print, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    # painting = models.ForeignKey(Painting, on_delete=models.CASCADE)
 
     start_bid = models.PositiveIntegerField('시작 입찰가',default=10000)
     now_bid = models.PositiveIntegerField('현재 입찰가',null=True)
