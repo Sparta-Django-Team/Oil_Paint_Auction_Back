@@ -35,35 +35,44 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             
         try:
             email = attrs[self.username_field]
-            self.status = User.objects.get(email=email).status
-            lock_count = User.objects.get(email=email).lock_count
+            self.target_user =  User.objects.get(email=email)
+            self.status = self.target_user.status
+            lock_count = self.target_user.lock_count
 
             #로그인 제한 횟수 counting
             if self.user == None:
-                User.objects.filter(email=email).update(lock_count = F('lock_count')+1)
+                self.target_user.lock_count = F('lock_count')+1
+                self.target_user.save()
 
             #로그인 제한 횟수 counting이 5이면 회원 상태 S로 변경
             if lock_count == 5:
-                User.objects.filter(email=email).update(status="S")             
-                User.objects.filter(email=email).update(lock_time=timezone.now())
+                self.target_user.status= "S"   
+                self.target_user.lock_time=timezone.now()
+                self.target_user.save()
                 
             #회원 상태 S이면 제한 시간 확인 후 N으로 변경
             now_today_time = timezone.now()
-            
+
             if self.status == 'S':
-                if now_today_time >= User.objects.get(email=email).lock_time + timezone.timedelta(minutes=5):
-                    User.objects.filter(email=email).update(status="N")
-                    User.objects.filter(email=email).update(lock_count= 0)
+                target_user_lock_time = self.target_user.lock_time + timezone.timedelta(minutes=5)
+                
+                if now_today_time >= target_user_lock_time:
+                    self.target_user.status="N"
+                    self.target_user.lock_count= 0
+                    self.target_user.save()
+                    
             
             #회원상태 W이면 로그인 시 비활성화 해제
             if self.status == 'W':
-                User.objects.filter(email=email).update(status="N")
+                self.target_user.status="N"
+                self.target_user.save()
             
         except:
             pass
         
+        
         #회원 상태 에러 발생
-        if User.objects.filter(email=attrs[self.username_field]).exists():
+        if User.objects.filter(email=email).exists():
             
             #회원 상태 aw이면 관리자 회원 탈퇴 에러
             if self.status == 'AW':
@@ -87,12 +96,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if api_settings.UPDATE_LAST_LOGIN:
             update_last_login(None, self.user)
             
-        today_point = User.objects.get(email=attrs[self.username_field]).today_point
-        print(today_point)
+        today_point = self.target_user.today_point
+        
         #로그인 할 때 하루에 한번 씩 1000포인트 지급
         if today_point == False:
-            User.objects.filter(email=email).update(today_point=True)
-            User.objects.filter(email=email).update(point = F('point')+1000)
+            self.target_user.today_point = True
+            self.target_user.point = F('point')+1000
+            self.target_user.save()
         
         return {"access":attrs["access"], "refresh":attrs["refresh"]}
 

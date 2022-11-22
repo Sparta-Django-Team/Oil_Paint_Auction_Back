@@ -6,7 +6,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
 from django.contrib.auth.hashers import check_password
 
 from .jwt_claim_serializer import CustomTokenObtainPairSerializer
@@ -20,7 +19,7 @@ class UserView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message":"가입성공"}, status=status.HTTP_201_CREATED )
+            return Response({"message":"회원가입 성공"}, status=status.HTTP_201_CREATED )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST )
     
     #회원정보 수정
