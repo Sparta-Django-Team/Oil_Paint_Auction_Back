@@ -76,6 +76,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         #로그인 실패 에러
         if not api_settings.USER_AUTHENTICATION_RULE(self.user):
             raise exceptions.AuthenticationFailed(self.error_messages["no_active_account"],"no_active_account",)
+        
 
         #로그인 토큰 발행
         refresh = self.get_token(self.user)
@@ -85,6 +86,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         if api_settings.UPDATE_LAST_LOGIN:
             update_last_login(None, self.user)
+            
+        today_point = User.objects.get(email=attrs[self.username_field]).today_point
+        print(today_point)
+        #로그인 할 때 하루에 한번 씩 1000포인트 지급
+        if today_point == False:
+            User.objects.filter(email=email).update(today_point=True)
+            User.objects.filter(email=email).update(point = F('point')+1000)
         
         return {"access":attrs["access"], "refresh":attrs["refresh"]}
 

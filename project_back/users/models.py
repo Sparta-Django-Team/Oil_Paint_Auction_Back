@@ -50,7 +50,9 @@ class User(AbstractBaseUser):
     retention_period =models.TextField('회원정보 보유기간', choices=RETENTION_PERIOD_CHOICES, default=RETENTION_PERIOD_CHOICES[0][0])
     lock_count = models.IntegerField('로그인 제한 횟수', default=0)
     lock_time = models.DateTimeField('로그인 제한 시간',null=True)
-    point = models.IntegerField('포인트', default=10000)
+    point = models.PositiveIntegerField('포인트', default=10000)
+    today_point = models.BooleanField('오늘 포인트받은 여부',default=False)
+    
     
     objects = UserManager()
 
