@@ -1,4 +1,7 @@
 from django.contrib import admin
-from paintings.models import Painting
+
+
+# Register your models here.
 
 admin.site.register(Painting)
+admin.site.register(PaintStyle)

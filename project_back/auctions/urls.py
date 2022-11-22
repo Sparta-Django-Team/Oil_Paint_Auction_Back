@@ -1,11 +1,8 @@
-# from django.urls import path
+from django.urls import path
+from . import views
 
-
-# from . import views
-
-# urlpatterns = [
-#     path('auction/<int:user_id>/', views.MyPageView.as_view(), name='mypage_view'),
-#     path('auction/', views.AuctionCreateView.as_view(), name='auction_create_view'),
-    
-    
-# ]
+urlpatterns = [
+    path('', views.MyPageView.as_view(), name='mypage_view'),
+    path('<int:painting_id>/', views.AuctionListView.as_view(), name='auction_list_view'),
+    path('<int:auction_id>/likes/',views.LikeView.as_view(), name="like_view"),
+]
