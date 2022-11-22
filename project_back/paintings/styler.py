@@ -22,7 +22,7 @@ model_num = int(input("모델넘버 입력:"))
 def print_styler(model_num):        # , img_url
     date = datetime.datetime.now()
 
-    net = cv2.dnn.readNetFromTorch(f'models/{model_list[model_num]}')
+    net = cv2.dnn.readNetFromTorch(f'../media/models/{model_list[model_num]}')
     img = cv2.imread('../media/imgs/01.jpg')
     # img = cv2.imread('./media/' + str(img_url))
 
@@ -44,7 +44,7 @@ def print_styler(model_num):        # , img_url
     output = np.clip(output, 0, 255)
     output = output.astype('uint8')
 
-    cv2.imwrite(f'../media/imgs/img_{date:%y%m%d}_{date:%H%M%S}.png', output)
+    cv2.imwrite(f'../media/imgs/results/img_{date:%y%m%d}_{date:%H%M%S}.png', output)
     print("---저장완료---")
 
 # test
