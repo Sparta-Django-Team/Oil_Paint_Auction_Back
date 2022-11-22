@@ -15,7 +15,7 @@ class Painting(models.Model):
     content = models.CharField(max_length=250, blank=True)
     before_image = models.ImageField(blank=True, upload_to='before_img')
     after_image = models.ImageField(blank=True, upload_to='after_img')
-    paint_style = models.ForeignKey(PaintStyle, on_delete=models.CASCADE)
+    paint_style = models.ForeignKey(PaintStyle, on_delete=models.CASCADE, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
