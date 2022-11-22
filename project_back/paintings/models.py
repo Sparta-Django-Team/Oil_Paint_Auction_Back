@@ -15,10 +15,10 @@ class Painting(models.Model):
     content = models.CharField(max_length=250, blank=True)
     before_image = models.ImageField(blank=True, upload_to='before_img')
     after_image = models.ImageField(blank=True, upload_to='after_img')
-    paint_style = models.ForeignKey(PaintStyle, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+    # paint_style = models.ForeignKey(PaintStyle, on_delete=models.CASCADE)    
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     
     class Meta: 
@@ -28,3 +28,8 @@ class Painting(models.Model):
         return str(self.title) 
 
 
+class TempImg(models.Model):
+    class Meta():
+        db_table = 'db_tempImg'
+
+    image = models.ImageField(upload_to="before_img", blank=True)

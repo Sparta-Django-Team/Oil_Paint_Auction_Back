@@ -2,28 +2,26 @@ import cv2
 import numpy as np
 import datetime
 
+import base64
 
-model_list = [
-    '01_eccv16_composition_vii.t7',
-    '02_eccv16_la_muse.t7',
-    '03_eccv16_starry_night.t7',
-    '04_eccv16_the_wave.t7',
-    '05_instance_norm_candy.t7',
-    '06_instance_norm_feathers.t7',
-    '07_instance_norm_la_muse.t7',
-    '08_instance_norm_mosaic.t7',
-    '09_instance_norm_starry_night.t7',
-    '10_instance_norm_the_scream.t7',
-    '11_instance_norm_udnie.t7'
-]
+import sys
+import os
+import django
 
-model_num = int(input("모델넘버 입력:"))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project_back.settings')
+django.setup()
 
-def print_styler(model_num):        # , img_url
-    date = datetime.datetime.now()
+from paintings.models import Painting, PaintStyle
 
-    net = cv2.dnn.readNetFromTorch(f'../media/models/{model_list[model_num]}')
-    img = cv2.imread('../media/imgs/01.jpg')
+
+
+def painting_styler(style_num, img_url):
+    style_name = PaintStyle.objects.get(id=style_num).model_urls
+
+    net = cv2.dnn.readNetFromTorch(f'./media/models/{style_name}')
+    img = cv2.imread('./media/imgs/02.jpg')
     # img = cv2.imread('./media/' + str(img_url))
 
     # pre-processing
@@ -44,11 +42,10 @@ def print_styler(model_num):        # , img_url
     output = np.clip(output, 0, 255)
     output = output.astype('uint8')
 
-    cv2.imwrite(f'../media/imgs/results/img_{date:%y%m%d}_{date:%H%M%S}.png', output)
+    date = datetime.datetime.now()
+    cv2.imwrite(f'./media/after_img/img_{date:%y%m%d}_{date:%H%M%S}.png', output)
     print("---저장완료---")
 
-# test
-print_styler(model_num)
 
 
 """
