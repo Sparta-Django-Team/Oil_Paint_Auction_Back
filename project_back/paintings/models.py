@@ -1,7 +1,5 @@
-from django.db import models
-
 from users.models import User
-
+from django.db import models
 
 class PaintStyle(models.Model):
     model_name = models.CharField(max_length=70, blank=True)
@@ -11,8 +9,8 @@ class PaintStyle(models.Model):
         return str(self.model_name)
 
 class Painting(models.Model):
-    title = models.CharField(max_length=70, blank=True)
-    content = models.CharField(max_length=250, blank=True)
+    title = models.CharField(max_length=20, blank=True)
+    content = models.TextField(max_length=200, blank=True)
     before_image = models.ImageField(blank=True, upload_to='before_img')
     after_image = models.ImageField(blank=True, upload_to='after_img')
     paint_style = models.ForeignKey(PaintStyle, on_delete=models.CASCADE, blank=True, null=True)
@@ -25,6 +23,4 @@ class Painting(models.Model):
         db_table = 'db_painting'
 
     def __str__(self):
-        return str(self.title) 
-
-
+        return str(self.title)
