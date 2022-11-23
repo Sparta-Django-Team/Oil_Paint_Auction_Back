@@ -17,12 +17,10 @@ from paintings.models import Painting
 
 
 
-def painting_styler(style_num, img_url):
-    # style_name = PaintStyle.objects.get(id=style_num).model_urls
-
-    net = cv2.dnn.readNetFromTorch(f'./media/models/{style_name}')
+def painting_styler(img_url, style_id):
+    net = cv2.dnn.readNetFromTorch(f'./paintings/models/{style_id[1]}.t7')
     img = cv2.imread('./media/imgs/02.jpg')
-    # img = cv2.imread('./media/' + str(img_url))
+    # img = cv2.imread('./media/before_img/'+str(img_url))
 
     # pre-processing
     h, w, c = img.shape
@@ -43,8 +41,10 @@ def painting_styler(style_num, img_url):
     output = output.astype('uint8')
 
     date = datetime.datetime.now()
-    cv2.imwrite(f'./media/after_img/img_{date:%y%m%d}_{date:%H%M%S}.png', output)
-    print("---저장완료---")
+    saving_path = f'./media/after_img/img_{date:%y%m%d}_{date:%H%M%S}.png'
+    cv2.imwrite(saving_path, output)
+    img_path = saving_path[8:]
+    return img_path
 
 
 
