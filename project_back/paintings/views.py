@@ -6,8 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 
-from paintings.models import Painting, PaintStyle, TempImg
-from paintings.serializers import StyleSerializer, PaintingSerializer, PaintingCreateSerializer
+from paintings.models import Painting
+from paintings.serializers import PaintingSerializer, PaintingCreateSerializer
 
 from .styler import painting_styler
 from .models import Painting
@@ -17,9 +17,7 @@ class PaintingStyleSelectView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        styles = get_list_or_404(PaintStyle)
-        serializer = StyleSerializer(styles, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        pass
 
 class ImageUploadView(APIView):
     permission_classes = [IsAuthenticated]
