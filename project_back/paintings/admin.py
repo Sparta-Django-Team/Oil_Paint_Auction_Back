@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Painting,PaintStyle
+
+from .models import Painting
 
 admin.site.register(Painting)
-admin.site.register(PaintStyle)

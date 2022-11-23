@@ -9,11 +9,17 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
 
 from .jwt_claim_serializer import CustomTokenObtainPairSerializer
-from .serializers import UserSerializer, ChangePasswordSerializer
+from .serializers import UserSerializer, ChangePasswordSerializer, ProfileSerializer
 from .models import User
 
 class UserView(APIView):
     permission_classes = [AllowAny]
+    
+    #개인 프로필 
+    def get(self, request):
+        user = get_object_or_404(User, id=request.user.id)
+        serializer = ProfileSerializer(User)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     #회원가입
     def post(self, request):
@@ -26,7 +32,7 @@ class UserView(APIView):
     #회원정보 수정
     def put(self, request):
         user = get_object_or_404(User, id=request.user.id)
-        if user:
+        if user == request.user:
             serializer = UserSerializer(user, data=request.data, partial=True)#partial 부분 수정 가능
             if serializer.is_valid():
                 serializer.save()
