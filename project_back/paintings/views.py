@@ -2,13 +2,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .models import Painting
 from .serializers import PaintingSerializer
 class PaintingDetailView(APIView):
+    permission_classes = [IsAuthenticated]
 
     #유화 작품 수정
-    def put(self, request, painting_id):
+    def put(self, request, painting_id):        
         painting = get_object_or_404(Painting, id=painting_id)
         if request.user == painting.author:
             serializer = PaintingSerializer(painting, data=request.data)
@@ -19,7 +21,7 @@ class PaintingDetailView(APIView):
         return Response("접근 권한 없음", status=status.HTTP_403_FORBIDDEN)
 
     #유화 작품 삭제
-    def delete(self, request, painting_id):
+    def delete(self, request, painting_id):        
         painting = get_object_or_404(Painting, id=painting_id)
         if request.user == painting.author:
             painting.delete()
