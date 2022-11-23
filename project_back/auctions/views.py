@@ -13,8 +13,8 @@ from .models import Painting, Auction
 #유화 리스트페이지
 class MyPageView(APIView):
     permission_classes = [IsAuthenticated] 
-    def get(self, request,user_id):
-        painting = get_list_or_404(Painting, author=user_id)        
+    def get(self, request):
+        painting = get_list_or_404(Painting, author=request.user.id)        
         serializer = MyPageserializer(painting, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -22,7 +22,7 @@ class MyPageView(APIView):
 #경매 생성
 class AuctionListView(APIView):
     permission_classes = [IsAuthenticated]
-    def post(self,request,painting_id):       
+    def post(self,request,painting_id): 
         serializer = AuctionCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(painting_id=painting_id)
