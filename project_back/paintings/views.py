@@ -30,7 +30,7 @@ class ImageUploadView(APIView):
 
         img_url = temp_img.image
 
-        # painting_styler(style_num, img_url)
+        painting_styler(style_num, img_url)
 
         return Response({"message":"변환 완료"}, status=status.HTTP_200_OK)
 
