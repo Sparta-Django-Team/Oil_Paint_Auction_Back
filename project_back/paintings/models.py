@@ -30,8 +30,8 @@ class Painting(models.Model):
     author = models.ForeignKey(User, verbose_name='원작자',on_delete=models.PROTECT, related_name='author_painting' )
     owner = models.ForeignKey(User,  verbose_name='소유자',on_delete=models.PROTECT, null=True, related_name='owner_painting')
 
-    
-    class Meta: 
+
+    class Meta:
         db_table = 'db_painting'
 
     def __str__(self):

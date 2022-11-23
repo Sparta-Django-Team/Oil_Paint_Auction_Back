@@ -1,12 +1,6 @@
 from rest_framework import serializers
 
-from .models import Painting, PaintStyle
-
-
-class StyleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PaintStyle
-        fields = ('model_name', 'model_urls',)
+from .models import Painting
 
 
 class PaintingCreateSerializer(serializers.ModelSerializer):

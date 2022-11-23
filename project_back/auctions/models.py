@@ -11,12 +11,14 @@ class Auction(models.Model):
     end_date = models.DateTimeField('경매 마감', null=True)
     
     painting = models.OneToOneField(Painting, verbose_name="유화",on_delete=models.CASCADE)
-
     auction_like = models.ManyToManyField( User, verbose_name='경매 좋아요', related_name="like_auction",blank=True)
 
-    class Meta: 
+    class Meta:
+
         db_table = 'auction'
         ordering = ['id']
 
     def __str__(self):
+
         return f'[제목]{self.painting.title}'
+
