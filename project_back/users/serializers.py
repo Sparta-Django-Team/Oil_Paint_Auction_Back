@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ('email', 'nickname', 'password', 'repassword','profile_image',)
+        fields = ('email', 'nickname', 'password', 'repassword','profile_image', 'term_check',)
         extra_kwargs = {'email': {
                         'error_messages': {
                         'required': '이메일을 입력해주세요.',
@@ -36,6 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
         nickname = data.get('nickname')
         password = data.get('password')
         repassword = data.get('repassword')
+        term_check = data.get('term_check')
         
         #닉네임 유효성 검사
         if re.search(NICKNAME_VALIDATION, str(nickname)):
@@ -53,17 +54,23 @@ class UserSerializer(serializers.ModelSerializer):
             #비밀번호 동일여부 검사
             if re.search(PASSWORD_PATTERN, str(password)):
                 raise serializers.ValidationError(detail={"password":"비밀번호는 3자리 이상 동일한 영문,숫자,특수문자 사용 불가합니다. "})
-
+        
+        #이용약관 확인 검사
+        if not term_check or term_check == False :
+            raise serializers.ValidationError(detail={"term_check":"약관동의를 확인해주세요."})
+        
         return data
     
     #회원가입 create
     def create(self, validated_data):
         email = validated_data['email']
         nickname = validated_data['nickname']
+        term_check = validated_data['term_check']
         user= User(
             nickname=nickname,
-            email=email
-        ) 
+            email=email,
+            term_check=term_check
+        )
         user.set_password(validated_data['password'])
         user.save()
         return user
