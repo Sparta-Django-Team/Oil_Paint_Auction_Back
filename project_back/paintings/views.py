@@ -27,4 +27,4 @@ class PaintingDetailView(APIView):
             painting.delete()
             return Response(status=status.HTTP_200_OK)
         return Response("접근 권한 없음", status=status.HTTP_403_FORBIDDEN)
-    
+

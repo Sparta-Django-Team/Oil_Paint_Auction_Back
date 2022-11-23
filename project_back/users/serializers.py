@@ -117,3 +117,9 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         instance.set_password(instance.password)
         instance.save()
         return instance
+
+class ProfileSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        field = ('email', 'nickname', 'profile_image', 'point',)
