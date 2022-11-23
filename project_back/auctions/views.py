@@ -22,7 +22,7 @@ class MyPageView(APIView):
 #경매 생성
 class AuctionListView(APIView):
     permission_classes = [IsAuthenticated]
-    def post(self,request,painting_id):       
+    def post(self,request,painting_id): 
         serializer = AuctionCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(painting_id=painting_id)
