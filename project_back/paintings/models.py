@@ -39,10 +39,4 @@ class Painting(models.Model):
         db_table = 'db_painting'
     
     def __str__(self):
-        return str(self.title)
-
-class TempImg(models.Model):
-    class Meta():
-        db_table = 'db_tempImg'
-
-    image = models.ImageField(upload_to="before_img", blank=True)
+        return f'[제목]{self.title}'
