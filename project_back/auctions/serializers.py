@@ -3,7 +3,6 @@ from rest_framework import serializers
 from auctions.models import Auction 
 from paintings.models import Painting
 
-
 class MyPageserializer(serializers.ModelSerializer):
 
     class Meta:

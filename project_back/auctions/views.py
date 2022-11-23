@@ -3,10 +3,9 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 
-from auctions.serializers import MyPageserializer,AuctionCreateSerializer
-
 from django.shortcuts import get_list_or_404
 
+from .serializers import MyPageserializer,AuctionCreateSerializer
 from .models import Painting, Auction
 
 
@@ -14,9 +13,10 @@ from .models import Painting, Auction
 class MyPageView(APIView):
     def get(self, request):
         painting = get_list_or_404(Painting, author=request.user.id)
-        serializer = MyPageserializer(painting, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
+        if painting.author == request.user:
+            serializer = MyPageserializer(painting, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response("접근 권한 없음", status=status.HTTP_403_FORBIDDEN)
 
 #경매 생성
 class AuctionListView(APIView):
@@ -26,7 +26,6 @@ class AuctionListView(APIView):
             serializer.save(author=request.user,painting_id=painting_id)
             return Response(serializer.data,status=status.HTTP_200_OK)       
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
 
 #경매 좋아요
 class LikeView(APIView):
