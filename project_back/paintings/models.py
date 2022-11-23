@@ -2,6 +2,7 @@ from django.db import models
 
 from users.models import User
 
+
 class Painting(models.Model):
     STYLE_CHOICES = (
         ('Composition_vii','01_eccv16_composition_vii.t7'),
@@ -28,9 +29,11 @@ class Painting(models.Model):
 
     author = models.ForeignKey(User, verbose_name='원작자',on_delete=models.PROTECT, related_name='author_painting' )
     owner = models.ForeignKey(User,  verbose_name='소유자',on_delete=models.PROTECT, null=True, related_name='owner_painting')
+
     
     class Meta: 
         db_table = 'db_painting'
 
     def __str__(self):
         return f'[제목]{self.title}'
+
