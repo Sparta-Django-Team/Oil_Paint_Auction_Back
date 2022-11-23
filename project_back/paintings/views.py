@@ -34,14 +34,14 @@ class ImageUploadView(APIView):
 
         return Response({"message":"변환 완료"}, status=status.HTTP_200_OK)
 
-class PaintingCreateView(APIView):
-    # permission_classes = [IsAuthenticated]
-    def post(self, request):
-        serializer = PaintingCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user, song_id=song_id)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class PaintingCreateView(APIView):
+#     # permission_classes = [IsAuthenticated]
+#     def post(self, request):
+#         serializer = PaintingCreateSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save(user=request.user, song_id=song_id)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PaintingDetailView(APIView):
