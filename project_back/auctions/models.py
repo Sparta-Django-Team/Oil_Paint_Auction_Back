@@ -6,7 +6,7 @@ from paintings.models import Painting
 
 class Auction(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    painting = models.ForeignKey(Painting, on_delete=models.CASCADE)
+    painting = models.OneToOneField(Painting, on_delete=models.CASCADE)
 
     start_bid = models.PositiveIntegerField('시작 입찰가',default=10000)
     now_bid = models.PositiveIntegerField('현재 입찰가',null=True,blank=True)
