@@ -18,7 +18,7 @@ class UserView(APIView):
     #개인 프로필 
     def get(self, request):
         user = get_object_or_404(User, id=request.user.id)
-        serializer = ProfileSerializer(User)
+        serializer = ProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     #회원가입
