@@ -63,7 +63,7 @@ class UserSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(detail={"password":"비밀번호는 3자리 이상 동일한 영문,숫자,특수문자 사용 불가합니다. "})
         
         #이용약관 확인 검사
-        if not term_check or term_check == False :
+        if term_check == False:
             raise serializers.ValidationError(detail={"term_check":"약관동의를 확인해주세요."})
         
         return data
