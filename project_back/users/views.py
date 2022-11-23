@@ -71,7 +71,7 @@ class ChangePasswordView(APIView):
 class CustomTokenObtainPairView(TokenObtainPairView):
     
     serializer_class = CustomTokenObtainPairSerializer
-    
+
 #미완성
 # class KakaoLoginView(APIView):
 #     # 소셜로그인 : 카카오 계정을 통해 로그인, 회원가입 진행
