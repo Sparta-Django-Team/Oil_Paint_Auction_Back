@@ -4,6 +4,7 @@ from users.models import User
 from paintings.models import Painting
 
 class Auction(models.Model):
+
     author = models.ForeignKey('작성자', User, on_delete=models.CASCADE)
     painting = models.ForeignKey('유화', Painting, on_delete=models.CASCADE)
 
