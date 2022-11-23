@@ -12,30 +12,27 @@ from .models import Painting, Auction
 
 #유화 리스트페이지
 class MyPageView(APIView):
-    permission_classes = [IsAuthenticated]
-    
+    permission_classes = [IsAuthenticated] 
     def get(self, request):
-        painting = get_list_or_404(Painting, author=request.user.id)
-        if painting.author == request.user:
-            serializer = MyPageserializer(painting, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response("접근 권한 없음", status=status.HTTP_403_FORBIDDEN)
+        painting = get_list_or_404(Painting, author=request.user.id)        
+        serializer = MyPageserializer(painting, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 #경매 생성
 class AuctionListView(APIView):
     permission_classes = [IsAuthenticated]
-    
-    def post(self,request,painting_id):
+    def post(self,request,painting_id):       
         serializer = AuctionCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(author=request.user, painting_id=painting_id)
+            serializer.save(painting_id=painting_id)
             return Response(serializer.data,status=status.HTTP_200_OK)       
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
 
 #경매 좋아요
 class LikeView(APIView):
     permission_classes = [IsAuthenticated]
-    
     def post(self,request,auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
         if request.user in auction.auction_like.all():
