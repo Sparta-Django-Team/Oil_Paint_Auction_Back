@@ -9,7 +9,7 @@ from rest_framework.generics import get_object_or_404
 from paintings.models import Painting
 from paintings.serializers import PaintingSerializer, PaintingCreateSerializer
 
-from .styler import painting_styler
+# from .styler import painting_styler
 from .models import Painting
 
 # Create your views here.
@@ -39,7 +39,7 @@ class PaintingCreateView(APIView):
     def post(self, request):
         serializer = PaintingCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user, song_id=song_id)
+            # serializer.save(user=request.user, song_id=song_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
