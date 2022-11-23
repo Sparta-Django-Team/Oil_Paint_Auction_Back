@@ -13,12 +13,12 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project_back.settings')
 django.setup()
 
-from paintings.models import Painting, PaintStyle
+from paintings.models import Painting
 
 
 
 def painting_styler(style_num, img_url):
-    style_name = PaintStyle.objects.get(id=style_num).model_urls
+    # style_name = PaintStyle.objects.get(id=style_num).model_urls
 
     net = cv2.dnn.readNetFromTorch(f'./media/models/{style_name}')
     img = cv2.imread('./media/imgs/02.jpg')

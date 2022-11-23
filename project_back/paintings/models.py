@@ -1,12 +1,7 @@
 from django.db import models
 
 from users.models import User
-class PaintStyle(models.Model):
-    model_name = models.CharField(max_length=70, blank=True)
-    model_urls = models.CharField(max_length=250, blank=True)
 
-    def __str__(self):
-        return str(self.model_name)
 
 class Painting(models.Model):
     STYLE_CHOICES = (
@@ -22,7 +17,7 @@ class Painting(models.Model):
         ('The_scream','10_instance_norm_the_scream.t7'),
         ('Udnie','11_instance_norm_udnie.t7'),
     )
-
+    
     title = models.CharField('제목', max_length=20, blank=True)
     content = models.TextField('내용', max_length=200, blank=True)
     before_image = models.ImageField('변환 전 사진', blank=True, upload_to='before_img')
@@ -31,12 +26,11 @@ class Painting(models.Model):
     updated_at = models.DateTimeField('수정 시간',auto_now=True)
     style = models.CharField('스타일', max_length=20, choices=STYLE_CHOICES)
     is_auction = models.BooleanField('경매상태', default=False)
-    
-    author = models.ForeignKey(User, verbose_name='원작자',on_delete=models.PROTECT)
-    owner = models.ForeignKey(User,  verbose_name='소유자',on_delete=models.PROTECT)
+    author = models.ForeignKey(User, verbose_name='원작자',on_delete=models.PROTECT, related_name='author_painting' )
+    owner = models.ForeignKey(User,  verbose_name='소유자',on_delete=models.PROTECT, null=True, related_name='owner_painting')
 
     class Meta:
         db_table = 'db_painting'
-    
+
     def __str__(self):
         return f'[제목]{self.title}'
