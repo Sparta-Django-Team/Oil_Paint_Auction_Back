@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 
 from paintings.models import Painting, PaintStyle, TempImg
-from paintings.serializers import StyleSerializer, PaintingCreateSerializer
+from paintings.serializers import StyleSerializer, PaintingSerializer, PaintingCreateSerializer
 
 from .styler import painting_styler
 from .models import Painting
