@@ -1,7 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import (
-    BaseUserManager, AbstractBaseUser
-)
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.utils import timezone
 
 class UserManager(BaseUserManager):
@@ -32,10 +30,10 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     
     STATUS_CHOICES = (
-        ('N', 'user_normal'),
-        ('S', 'user_stop'),
-        ('W', 'user_withdrawal'),
-        ('AW', 'admin_withdrawal'),
+        ('N', 'user_normal'), #정상
+        ('S', 'user_stop'), #로그인 횟수 제한 -> 계정 잠금
+        ('W', 'user_withdrawal'), #비활성화
+        ('AW', 'admin_withdrawal'), #관리자 비활성화
     )
 
     RETENTION_PERIOD_CHOICES = (

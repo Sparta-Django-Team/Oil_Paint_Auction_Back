@@ -1,8 +1,6 @@
 from django.db import models
 
 from users.models import User
-
-
 class PaintStyle(models.Model):
     model_name = models.CharField(max_length=70, blank=True)
     model_urls = models.CharField(max_length=250, blank=True)
@@ -11,6 +9,7 @@ class PaintStyle(models.Model):
         return str(self.model_name)
 
 class Painting(models.Model):
+
     title = models.CharField(max_length=70, blank=True)
     content = models.CharField(max_length=250, blank=True)
     before_image = models.ImageField(blank=True, upload_to='before_img')
@@ -26,7 +25,6 @@ class Painting(models.Model):
 
     def __str__(self):
         return str(self.title) 
-
 
 class TempImg(models.Model):
     class Meta():

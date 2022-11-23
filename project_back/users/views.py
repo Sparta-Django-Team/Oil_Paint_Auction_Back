@@ -3,9 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-
 
 from django.contrib.auth.hashers import check_password
 
@@ -14,19 +13,20 @@ from .serializers import UserSerializer, ChangePasswordSerializer
 from .models import User
 
 class UserView(APIView):
+    permission_classes = [AllowAny]
     
     #회원가입
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message":"가입성공"}, status=status.HTTP_201_CREATED )
+            return Response({"message":"회원가입 성공"}, status=status.HTTP_201_CREATED )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST )
     
     #회원정보 수정
     def put(self, request):
         user = get_object_or_404(User, id=request.user.id)
-        if user == request.user:
+        if user:
             serializer = UserSerializer(user, data=request.data, partial=True)#partial 부분 수정 가능
             if serializer.is_valid():
                 serializer.save()
