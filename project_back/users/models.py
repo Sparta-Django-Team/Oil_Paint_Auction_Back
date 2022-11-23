@@ -50,7 +50,7 @@ class User(AbstractBaseUser):
     lock_time = models.DateTimeField('로그인 제한 시간',null=True)
     point = models.PositiveIntegerField('포인트', default=10000)
     today_point = models.BooleanField('오늘 포인트받은 여부',default=False)
-    term_check = models.BooleanField('약관 동의 여부', null=True)
+    term_check = models.BooleanField('약관 동의 여부', null=True, default=False)
     
     
     objects = UserManager()
