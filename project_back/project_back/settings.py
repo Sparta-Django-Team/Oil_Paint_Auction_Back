@@ -145,7 +145,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #AUTH settings
 AUTH_USER_MODEL = 'users.User'
-
+PASSWORD_RESET_TIMEOUT = 3600
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=720),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -181,3 +181,11 @@ SIMPLE_JWT = {
 #CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
 
+#EMAIL settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = get_secret("EMAIL")
+EMAIL_HOST_PASSWORD = get_secret("EMAIL_PASSWORD")
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
