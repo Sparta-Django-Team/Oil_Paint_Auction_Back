@@ -13,18 +13,16 @@ from paintings.serializers import PaintingSerializer, PaintingCreateSerializer, 
 from .models import Painting, STYLE_CHOICES
 from users.models import User
 
-
-import json
-
-# Create your views here.
 class PaintingStyleSelectView(APIView):
     # permission_classes = [IsAuthenticated]
+
     def get(self, requets):
         style = [[x, y] for x, y in STYLE_CHOICES]
         return Response(style, status=status.HTTP_200_OK)
 
 class PaintingCreateView(APIView):
     # permission_classes = [IsAuthenticated]
+
     def get(self, requets):
         style = [[x, y] for x, y in STYLE_CHOICES]
         return Response(style, status=status.HTTP_200_OK)
@@ -40,35 +38,12 @@ class PaintingCreateView(APIView):
     def put(self, request, painting_id):
         painting = get_object_or_404(Painting, id=painting_id)
         serializer = PaintingCreateSerializer(painting, data=request.data)
+        print(request.user.id)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=request.user, author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-# class PaintingCreateView(APIView):
-#     # permission_classes = [IsAuthenticated]
-#     def get(self, requets):
-#         style = [[x, y] for x, y in STYLE_CHOICES]
-#         return Response(style, status=status.HTTP_200_OK)
-
-#     def put(self, request, painting_id):
-#         painting = get_object_or_404(Painting, id=painting_id)
-#         serializer = PaintingCreateSerializer(painting, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-
-
-
 
 class PaintingDetailView(APIView):
     permission_classes = [IsAuthenticated]
