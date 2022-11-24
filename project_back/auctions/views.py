@@ -65,7 +65,7 @@ class AuctionLikeView(APIView):
 
 
 ##### Comment #####
-class AuctionCommentView(APIView):
+class CommentView(APIView):
     permission_classes = [IsAuthenticated]
 
     # 댓글 조회
