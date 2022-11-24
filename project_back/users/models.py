@@ -40,9 +40,9 @@ class User(AbstractBaseUser):
         (str(timezone.now().date() + timezone.timedelta(days=365)), '1year'),
     )
     
-    email = models.EmailField('이메일', max_length=100, unique=True, error_messages={'unique': "이미 사용중인 이메일 이거나 탈퇴한 이메일 입니다."})
-    nickname = models.CharField('닉네임', max_length=10, unique=True, error_messages={'unique': "이미 사용중인 닉네임 이거나 탈퇴한 닉네임 입니다."})
-    profile_image = models.ImageField('프로필 사진', default="default_profile_pic.jpg",upload_to="profile_pics" )
+    email = models.EmailField('이메일', max_length=100, unique=True, error_messages={"unique": "이미 사용중인 이메일 이거나 탈퇴한 이메일 입니다."})
+    nickname = models.CharField('닉네임', max_length=10, unique=True, error_messages={"unique":"이미 사용중인 닉네임 이거나 탈퇴한 닉네임 입니다."})
+    profile_image = models.ImageField('프로필 사진', default='default_profile_pic.jpg', upload_to='profile_pics' )
     status = models.CharField('회원 상태',max_length=20, choices=STATUS_CHOICES, default=STATUS_CHOICES[0][0])
     is_admin = models.BooleanField('어드민', default=False)
     retention_period =models.TextField('회원정보 보유기간', choices=RETENTION_PERIOD_CHOICES, default=RETENTION_PERIOD_CHOICES[0][0])
