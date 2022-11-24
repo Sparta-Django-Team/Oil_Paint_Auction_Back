@@ -19,6 +19,20 @@ class AuctionlistView(APIView):
         serializer = AuctionListSerializer(auction, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class AuctionCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    #경매 생성
+    def post(self, request, painting_id): 
+        serializer = AuctionCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                serializer.save(painting_id=painting_id)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            
+            except IntegrityError as e:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class AuctionDetailView(APIView):
     permissions_classes = [AllowAny] 
     
@@ -35,20 +49,6 @@ class AuctionDetailView(APIView):
             auction.delete()
             return Response({"message":"경매 삭제"}, status=status.HTTP_200_OK)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN) 
-
-class AuctionCreateView(APIView):
-    permission_classes = [IsAuthenticated]
-    
-    #경매 생성
-    def post(self, request, painting_id): 
-        serializer = AuctionCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                serializer.save(painting_id=painting_id)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            
-            except IntegrityError as e:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #경매 좋아요
 class AuctionLikeView(APIView):
