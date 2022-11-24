@@ -41,13 +41,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
             #로그인 제한 횟수 counting
             if self.user == None:
-                self.target_user.lock_count = F('lock_count')+1
+                self.target_user.lock_count = F("lock_count")+1
                 self.target_user.save()
 
             #로그인 제한 횟수 counting이 5이면 회원 상태 S로 변경
             if lock_count == 5:
-                self.target_user.status= "S"   
-                self.target_user.lock_time=timezone.now()
+                self.target_user.status = 'S'   
+                self.target_user.lock_time = timezone.now()
                 self.target_user.save()
                 
             #회원 상태 S이면 제한 시간 확인 후 N으로 변경
@@ -57,14 +57,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 target_user_lock_time = self.target_user.lock_time + timezone.timedelta(minutes=5)
                 
                 if now_today_time >= target_user_lock_time:
-                    self.target_user.status="N"
-                    self.target_user.lock_count= 0
+                    self.target_user.status = 'N'
+                    self.target_user.lock_count = 0
                     self.target_user.save()
                     
             
             #회원상태 W이면 로그인 시 비활성화 해제
             if self.status == 'W':
-                self.target_user.status="N"
+                self.target_user.status = 'N'
                 self.target_user.save()
             
         except:
@@ -101,7 +101,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         #로그인 할 때 하루에 한번 씩 1000포인트 지급
         if today_point == False:
             self.target_user.today_point = True
-            self.target_user.point = F('point')+1000
+            self.target_user.point = F("point")+1000
             self.target_user.save()
         
         return {"access":attrs["access"], "refresh":attrs["refresh"]}
@@ -109,6 +109,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['email'] = user.email
-        token['nickname'] = user.nickname
+        token["email"] = user.email
+        token["nickname"] = user.nickname
         return token

@@ -1,33 +1,30 @@
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from rest_framework import serializers
 
 from .models import Painting
-from users.models import User
 
 from .styler import painting_styler
-
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Painting
-        fields = ("id","style","before_image",)
+        fields = ('id', 'style', 'before_image',)
 
     def create(self, validated_data):
         style_no = validated_data["style"]
-        before_image = validated_data['before_image']
+        before_image = validated_data["before_image"]
+        
         painting= Painting(
             style=style_no,
             before_image=before_image,
         )
         painting.save()
+        
         return painting
 
-
 class PaintingCreateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Painting
-        fields = ("title", "content", "owner", "author", "after_image", )
+        fields = ('title', 'content', 'owner', 'author', 'after_image', )
         extra_kwargs = {'title': {
                         'error_messages': {
                         'required': '제목을 입력해주세요',
@@ -45,12 +42,26 @@ class PaintingCreateSerializer(serializers.ModelSerializer):
         instance.owner = validated_data.get('user_id', validated_data["owner"])
         instance.author = validated_data.get('user_id', validated_data["author"])
         instance.after_image = painting_styler(instance.before_image, instance.style)
+        
         instance.save()
 
         return instance
 
+class PaintingDetailSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField()
+    owner = serializers.SerializerMethodField()
 
-class PaintingSerializer(serializers.ModelSerializer):
+    def get_author(self, obj):
+        return obj.author.nickname
+
+    def get_owner(self, obj):
+        return obj.owner.nickname
+
+    class Meta:
+        model = Painting
+        fields = ('id', 'title', 'content', 'author', 'owner', 'after_image')
+        
+class PaintingListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Painting
         fields = "__all__"

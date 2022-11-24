@@ -4,14 +4,13 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.contrib.sites.shortcuts import get_current_site
-from django.urls import reverse
-from django.utils.encoding import smart_bytes, force_str, smart_str, DjangoUnicodeDecodeError
+from django.utils.encoding import smart_bytes, force_str
 
 import re
 
 from .models import User
 from .utils import Util
+
 class UserSerializer(serializers.ModelSerializer):
     repassword= serializers.CharField(error_messages={'required':'비밀번호를 입력해주세요.', 'blank':'비밀번호를 입력해주세요.', 'write_only':True})    
     
@@ -144,11 +143,14 @@ class PasswordResetSerializer(serializers.Serializer):
             user = User.objects.get(email=email) 
             uidb64 = urlsafe_base64_encode(smart_bytes(user.id)) 
             token = PasswordResetTokenGenerator().make_token(user) #토큰 생성
-            frontend_site = "127.0.0.1:5500"
+            
+            frontend_site = "127.0.0.1:5500" #프론트 주소
             absurl = f'http://{frontend_site}/set_password.html?/{uidb64}/{token}' #확인된 토큰 주소 생성
+            
             email_body = '안녕하세요? \n 비밀번호 재설정 주소입니다.\n'+ absurl #이메일 내용
             message = {'email_body': email_body, 'to_email': user.email,'email_subject': '비밀번호 재설정'}
             Util.send_email(message)
+            
             return super().validate(attrs)
         raise serializers.ValidationError(detail={"email":"잘못된 이메일입니다. 다시 입력해주세요."})
 
@@ -172,8 +174,9 @@ class SetNewPasswordSerializer(serializers.Serializer):
         user_id = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(id=user_id)
 
+        #토큰이 유효여부
         if PasswordResetTokenGenerator().check_token(user, token) == False:
-            raise exceptions.AuthenticationFailed('링크가 유효하지 않습니다.', 401)
+            raise exceptions.AuthenticationFailed("링크가 유효하지 않습니다.", 401)
         
         #비밀번호 일치
         if password != repassword:
@@ -192,9 +195,6 @@ class SetNewPasswordSerializer(serializers.Serializer):
         
         
         return super().validate(attrs)
-            
-
-
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
