@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.shortcuts import get_list_or_404
+from django.utils import timezone
 
 from .serializers import MyPageserializer,AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer
 from .models import Painting, Auction
@@ -34,8 +35,12 @@ class AuctionDetailView(APIView):
     permissions_classes = [AllowAny] 
     def get(self, request,user_id, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
-        serializer = AuctionDetailSerializer(auction)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        print(auction)
+        # 마감 날짜 확인
+        if auction.end_date > timezone.now():
+            serializer = AuctionDetailSerializer(auction)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response("경매가 마감되었습니다.",status=status.HTTP_400_BAD_REQUEST)
     
     # 경매 삭제
     def delete(self, request, user_id, auction_id):
