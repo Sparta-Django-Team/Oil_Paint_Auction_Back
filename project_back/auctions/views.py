@@ -33,7 +33,6 @@ class AuctionDetailView(APIView):
     permissions_classes = [AllowAny] 
     def get(self, request,user_id, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
-        print(auction)
         serializer = AuctionDetailSerializer(auction)
         return Response(serializer.data, status=status.HTTP_200_OK)
     

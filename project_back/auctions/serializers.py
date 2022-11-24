@@ -16,13 +16,17 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
 
 class paintingserializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
+    owner = serializers.SerializerMethodField()
 
     def get_author(self, obj):
-         return obj.author.email
+         return obj.author.nickname
+
+    def get_owner(self, obj):
+         return obj.owner.nickname
 
     class Meta:
         model = Painting
-        fields = ('id', 'title', 'content', 'author')
+        fields = ('id', 'title', 'content', 'author', 'owner', 'after_image')
 
 class AuctionListSerializer(serializers.ModelSerializer):
     auction_like = serializers.StringRelatedField(many=True)
@@ -38,7 +42,11 @@ class AuctionListSerializer(serializers.ModelSerializer):
 
 class AuctionDetailSerializer(serializers.ModelSerializer):
     auction_like = serializers.StringRelatedField(many=True)
+    auction_like_count = serializers.SerializerMethodField()
     painting = paintingserializer()
+
+    def get_auction_like_count(self, obj) :    
+        return obj.auction_like.count()
 
     class Meta:
         model = Auction
