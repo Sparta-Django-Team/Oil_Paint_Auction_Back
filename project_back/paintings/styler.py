@@ -23,6 +23,7 @@ def painting_styler(img_url, style_id):
     # img = cv2.imread('./media/imgs/02.jpg')
     img = cv2.imread('./media/'+str(img_url))
 
+
     # pre-processing
     h, w, c = img.shape
     img = cv2.resize(img, dsize=(500, int(h / w * 500)))
@@ -41,11 +42,14 @@ def painting_styler(img_url, style_id):
     output = np.clip(output, 0, 255)
     output = output.astype('uint8')
 
+
     date = datetime.datetime.now()
     saving_path = f'./media/after_img/img_{date:%y%m%d}_{date:%H%M%S}.png'
     cv2.imwrite(saving_path, output)
     img_path = saving_path[8:]
     return img_path
+
+
 
 
 

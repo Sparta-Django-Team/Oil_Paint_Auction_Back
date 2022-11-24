@@ -9,7 +9,6 @@ from rest_framework.generics import get_object_or_404
 from paintings.models import Painting
 from paintings.serializers import PaintingSerializer, PaintingCreateSerializer, ImageSerializer
 
-
 from .models import Painting, STYLE_CHOICES
 from users.models import User
 
@@ -44,6 +43,7 @@ class PaintingCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PaintingDetailView(APIView):
     permission_classes = [IsAuthenticated]

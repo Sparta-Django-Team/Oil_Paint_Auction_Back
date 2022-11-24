@@ -12,6 +12,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"test",
             "password":"Test1234!",
             "repassword":"Test1234!",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 201)
@@ -24,6 +25,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"test",
             "password":"Test1234!",
             "repassword":"Test1234!",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
@@ -36,6 +38,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"test",
             "password":"Test1234!",
             "repassword":"Test1234!",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
@@ -49,6 +52,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"test1",
             "password":"Test1234!",
             "repassword":"Test1234!",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
@@ -61,6 +65,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"",
             "password":"Test1234!",
             "repassword":"Test1234!",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
@@ -73,6 +78,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"n!",
             "password":"Test1234!",
             "repassword":"Test1234!",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
@@ -86,6 +92,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"test",
             "password":"Test1234!",
             "repassword":"Test1234!",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
@@ -98,6 +105,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"test",
             "password":"",
             "repassword":"Test1234!",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
@@ -110,6 +118,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"test",
             "password":"Test1234!",
             "repassword":"",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
@@ -122,6 +131,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"test",
             "password":"Test1234!",
             "repassword":"Test12345!",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
@@ -134,6 +144,7 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"test",
             "password":"t1",
             "repassword":"t1",
+            "term_check":"True",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
@@ -146,6 +157,20 @@ class UserSignupAPIViewTestCase(APITestCase):
             "nickname":"test",
             "password":"Test111!",
             "repassword":"Test111!",
+            "term_check":"True",
+        }
+        response = self.client.post(url, user_data)
+        self.assertEqual(response.status_code, 400)
+        
+    #회원가입 실패(약관동의)
+    def test_signup_term_checkt_fail(self):
+        url = reverse("user_view")
+        user_data = {
+            "email":"test@test.com",
+            "nickname":"test",
+            "password":"Test111!",
+            "repassword":"Test111!",
+            "term_check":"False",
         }
         response = self.client.post(url, user_data)
         self.assertEqual(response.status_code, 400)
