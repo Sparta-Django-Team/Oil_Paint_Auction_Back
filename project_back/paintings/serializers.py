@@ -25,7 +25,6 @@ class ImageSerializer(serializers.ModelSerializer):
 
 class PaintingCreateSerializer(serializers.ModelSerializer):
 
-
     class Meta:
         model = Painting
         fields = ("title", "content", "owner", "author", "after_image", )

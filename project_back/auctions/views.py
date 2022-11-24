@@ -75,3 +75,5 @@ class LikeView(APIView):
         else:
             auction.auction_like.add(request.user)
             return Response('좋아요 되었습니다.',status=status.HTTP_200_OK)
+
+

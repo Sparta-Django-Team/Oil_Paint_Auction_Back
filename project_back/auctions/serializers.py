@@ -19,10 +19,10 @@ class paintingserializer(serializers.ModelSerializer):
     owner = serializers.SerializerMethodField()
 
     def get_author(self, obj):
-         return obj.author.nickname
+        return obj.author.nickname
 
     def get_owner(self, obj):
-         return obj.owner.nickname
+        return obj.owner.nickname
 
     class Meta:
         model = Painting
