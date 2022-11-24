@@ -71,6 +71,8 @@ class ChangePasswordView(APIView):
             serializer.save()
             return Response({"message":"비밀번호 변경이 완료되었습니다! 다시 로그인해주세요."} , status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#비밀번호 재설정 이메일 발송
 class PasswordResetView(APIView):
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data, context={'request': request})
@@ -78,6 +80,7 @@ class PasswordResetView(APIView):
             return Response({"message":"비밀번호 재설정 이메일을 발송했습니다. 확인부탁드립니다."}, status=status.HTTP_200_OK )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST )
 
+#비밀번호 재설정 토큰 확인
 class PasswordTokenCheckView(APIView):
     def get(self, request, uidb64, token):
         try:
@@ -91,6 +94,8 @@ class PasswordTokenCheckView(APIView):
             
         except DjangoUnicodeDecodeError as identifier:
             return Response({"message":"링크가 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+
+#비밀번호 재설정
 class SetNewPasswordView(APIView):
     def put(self, request):
         serializer = SetNewPasswordSerializer(data=request.data)
