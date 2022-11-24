@@ -10,6 +10,7 @@ from django.utils import timezone
 from .serializers import MyPageserializer,AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer
 from .models import Painting, Auction
 
+from django.db import IntegrityError
 
 #유화 리스트페이지
 class MyPageView(APIView):
@@ -56,9 +57,11 @@ class AuctionListView(APIView):
     def post(self,request,painting_id): 
         serializer = AuctionCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(painting_id=painting_id)
-            return Response(serializer.data,status=status.HTTP_200_OK)       
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            try:
+                serializer.save(painting_id=painting_id)
+                return Response(serializer.data,status=status.HTTP_200_OK)
+            except IntegrityError as e:
+                return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
 #경매 좋아요
