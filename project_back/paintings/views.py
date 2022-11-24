@@ -23,7 +23,7 @@ class PaintingListview(APIView):
 
 
 class PaintingStyleSelectView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     #유화 스타일 선택 페이지
     def get(self, requets):
@@ -32,7 +32,7 @@ class PaintingStyleSelectView(APIView):
 
 
 class ImageUploadView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     
     #유화 스타일 생성 페이지
     def get(self, requets):
