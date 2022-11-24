@@ -6,8 +6,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.db import IntegrityError
 
-from .serializers import AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer
-from .models import Auction
+from .serializers import AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, AuctionCommentSerializer, AuctionCommentCreateSerializer
+from .models import Auction, Comment
 
 #####경매#####
 class AuctionListView(APIView):
@@ -69,7 +69,40 @@ class AuctionCommentView(APIView):
     permission_classes = [IsAuthenticated]
 
     # 댓글 조회
-    
+    def get(self, request, auction_id):
+        auction = get_object_or_404(Auction, id=auction_id)
+        comments = auction.comment.all()
+        serializer = AuctionCommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     # 댓글 생성
-    # def post(self, request, auction_id):
-    #     auction = get_object_or_404(Auction, id=auction_id)
+    def post(self, request, auction_id):
+        serializer = AuctionCommentCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user, auction_id=auction_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    #댓글 수정
+    def put(self, request, auction_id, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user:
+            serializer = AuctionCommentCreateSerializer(comment, data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=request.user, auction_id = auction_id)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response("접근 권한 없음", status=status.HTTP_403_FORBIDDEN)
+
+    #댓글 삭제
+    def delete(self, request, auction_id, comment_id):
+        comment= get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user:
+            comment.delete()
+            return Response(status=status.HTTP_200_OK)
+        return Response("접근 권한 없음", status=status.HTTP_403_FORBIDDEN)
+
