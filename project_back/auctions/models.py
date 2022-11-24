@@ -20,3 +20,10 @@ class Auction(models.Model):
     def __str__(self):
         return f'[제목]{self.painting.title}'
 
+class Comment(models.Model):
+    comment = models.TextField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now = True)
+
+    class Meta:
+        db_table = 'db_comment'

@@ -10,7 +10,7 @@ from .serializers import AuctionCreateSerializer, AuctionListSerializer, Auction
 from .models import Auction
 
 #####경매#####
-class AuctionlistView(APIView):
+class AuctionListView(APIView):
     permissions_classes = [AllowAny] 
     
     #경매 리스트
@@ -62,3 +62,13 @@ class AuctionLikeView(APIView):
         else:
             auction.auction_like.add(request.user)
             return Response({"message":"좋아요 되었습니다."}, status=status.HTTP_200_OK)
+
+
+##### Comment #####
+class AuctionCommentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    # 댓글 생성
+    def post(self, request, auction_id):
+        auction = get_object_or_404(Auction, id=auction_id)
+        
