@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from auctions.models import Auction
+from auctions.models import Auction, Comment
 from paintings.serializers import PaintingDetailSerializer
 
 class AuctionCreateSerializer(serializers.ModelSerializer):
@@ -31,4 +31,3 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
         fields = "__all__"
-
