@@ -1,37 +1,27 @@
 from rest_framework import serializers
 
-from auctions.models import Auction 
-from paintings.models import Painting
-
-class MyPageserializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Painting
-        fields = "__all__"
+from auctions.models import Auction, Comment
+from paintings.serializers import PaintingDetailSerializer
 
 class AuctionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
-        fields = ("start_bid","end_date",)
-
-class paintingserializer(serializers.ModelSerializer):
-    author = serializers.SerializerMethodField()
-    owner = serializers.SerializerMethodField()
-
-    def get_author(self, obj):
-         return obj.author.nickname
-
-    def get_owner(self, obj):
-         return obj.owner.nickname
-
-    class Meta:
-        model = Painting
-        fields = ('id', 'title', 'content', 'author', 'owner', 'after_image')
+        fields = ('start_bid', 'end_date',)
+        extra_kwargs = {'start_bid':{
+                        'error_messages': {
+                        'required':'입찰가를 입력해주세요.',
+                        'blank':'입찰가를 입력해주세요.',}},
+                        
+                        'end_date':{
+                        'error_messages': {
+                        'required':'날짜를 입력해주세요.',
+                        'blank':'날짜를 입력해주세요.',}},
+                        }
 
 class AuctionListSerializer(serializers.ModelSerializer):
     auction_like = serializers.StringRelatedField(many=True)
     auction_like_count = serializers.SerializerMethodField()
-    painting = paintingserializer()
+    painting = PaintingDetailSerializer()
 
     def get_auction_like_count(self, obj) :    
         return obj.auction_like.count()
@@ -44,7 +34,7 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
     auction_like = serializers.StringRelatedField(many=True)
     auction_like_count = serializers.SerializerMethodField()
     bidder = serializers.SerializerMethodField()
-    painting = paintingserializer()
+    painting = PaintingDetailSerializer()
 
     def get_bidder(self, obj):
         return obj.bidder.nickname
@@ -55,6 +45,7 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
         fields = "__all__"
+
 
 class AuctionBidSerializer(serializers.ModelSerializer):
 
@@ -94,8 +85,28 @@ class AuctionBidSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    
 
+class AuctionCommentSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    profile_image = serializers.SerializerMethodField()
+    auction = serializers.StringRelatedField()
 
+    def get_user(self, obj):
+        return obj.user.nickname
 
+    def get_profile_image(self, obj):
+        return obj.user.profile_image.url
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+class AuctionCommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('content',)
+        extra_kwargs = {'content':{
+                        'error_messages': {
+                        'required':'내용을 입력해주세요.',
+                        'blank':'내용을 입력해주세요.',}},}
 

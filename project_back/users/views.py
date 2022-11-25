@@ -5,7 +5,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import exceptions
 
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -13,9 +12,9 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import DjangoUnicodeDecodeError, force_str
 
 from .jwt_claim_serializer import CustomTokenObtainPairSerializer
-from .serializers import UserSerializer, ChangePasswordSerializer, ProfileSerializer, SetNewPasswordSerializer, PasswordResetSerializer
+from .serializers import (UserSerializer, ChangePasswordSerializer, 
+                        ProfileSerializer, SetNewPasswordSerializer, PasswordResetSerializer)
 from .models import User
-from .utils import Util
 
 class UserView(APIView):
     permission_classes = [AllowAny]
@@ -72,6 +71,8 @@ class ChangePasswordView(APIView):
             serializer.save()
             return Response({"message":"비밀번호 변경이 완료되었습니다! 다시 로그인해주세요."} , status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#비밀번호 찾기(이메일 전송)
 class PasswordResetView(APIView):
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data, context={'request': request})
@@ -79,6 +80,7 @@ class PasswordResetView(APIView):
             return Response({"message":"비밀번호 재설정 이메일을 발송했습니다. 확인부탁드립니다."}, status=status.HTTP_200_OK )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST )
 
+#비밀번호 재설정 토큰 확인
 class PasswordTokenCheckView(APIView):
     def get(self, request, uidb64, token):
         try:
@@ -91,13 +93,16 @@ class PasswordTokenCheckView(APIView):
             
         except DjangoUnicodeDecodeError as identifier:
             return Response({"message":"링크가 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED)
-            
+
+#비밀번호 재설정
 class SetNewPasswordView(APIView):
     def put(self, request):
         serializer = SetNewPasswordSerializer(data=request.data)
         if serializer.is_valid():
             return Response({"message":"비밀번호 재설정 완료"}, status=status.HTTP_200_OK )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#로그인 JWT
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
