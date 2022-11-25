@@ -9,12 +9,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_decode
-from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
+from django.utils.encoding import DjangoUnicodeDecodeError, force_str
 
 from .jwt_claim_serializer import CustomTokenObtainPairSerializer
-from .serializers import UserSerializer, ChangePasswordSerializer, ProfileSerializer, SetNewPasswordSerializer, PasswordResetSerializer
+from .serializers import (UserSerializer, ChangePasswordSerializer, 
+                        ProfileSerializer, SetNewPasswordSerializer, PasswordResetSerializer)
 from .models import User
-from .utils import Util
 
 class UserView(APIView):
     permission_classes = [AllowAny]
@@ -71,6 +71,8 @@ class ChangePasswordView(APIView):
             serializer.save()
             return Response({"message":"비밀번호 변경이 완료되었습니다! 다시 로그인해주세요."} , status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#비밀번호 찾기(이메일 전송)
 class PasswordResetView(APIView):
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data, context={'request': request})
@@ -78,25 +80,29 @@ class PasswordResetView(APIView):
             return Response({"message":"비밀번호 재설정 이메일을 발송했습니다. 확인부탁드립니다."}, status=status.HTTP_200_OK )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST )
 
+#비밀번호 재설정 토큰 확인
 class PasswordTokenCheckView(APIView):
     def get(self, request, uidb64, token):
         try:
-            user_id=smart_str(urlsafe_base64_decode(uidb64))
+            user_id = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(id=user_id)
-            
             if not PasswordResetTokenGenerator().check_token(user, token):
                 return Response({"message":"링크가 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED)
             
-            return Response({"message":"토큰 권한 있음", 'uidb64':uidb64, 'token':token}, status=status.HTTP_200_OK)
+            return Response({'uidb64':uidb64, 'token':token}, status=status.HTTP_200_OK)
             
         except DjangoUnicodeDecodeError as identifier:
             return Response({"message":"링크가 유효하지 않습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+
+#비밀번호 재설정
 class SetNewPasswordView(APIView):
     def put(self, request):
         serializer = SetNewPasswordSerializer(data=request.data)
         if serializer.is_valid():
             return Response({"message":"비밀번호 재설정 완료"}, status=status.HTTP_200_OK )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#로그인 JWT
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
