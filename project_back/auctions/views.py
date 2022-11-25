@@ -12,6 +12,7 @@ from .serializers import (AuctionCreateSerializer, AuctionListSerializer, Auctio
                         AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer, AuctionHistoySerializer)
 from .models import Auction, Comment, AuctionHistory
 
+
 #####경매#####
 class AuctionListView(APIView):
     permissions_classes = [AllowAny] 
