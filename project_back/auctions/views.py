@@ -4,10 +4,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+from django.shortcuts import get_list_or_404
+from django.utils import timezone
+
 from django.db import IntegrityError
 
-from .serializers import AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, AuctionCommentSerializer, AuctionCommentCreateSerializer
+from .serializers import AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer
 from .models import Auction, Comment
+from paintins.models import Painting
 
 #####경매#####
 class AuctionListView(APIView):
@@ -35,12 +39,22 @@ class AuctionCreateView(APIView):
 
 class AuctionDetailView(APIView):
     permissions_classes = [AllowAny] 
-    
-    # 경매 상세 조회
+
     def get(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
-        serializer = AuctionDetailSerializer(auction)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # 마감 날짜 확인
+        if auction.end_date > timezone.now():
+            serializer = AuctionDetailSerializer(auction)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response("경매가 마감되었습니다.",status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, auction_id):
+        auction = get_object_or_404(Auction, id=auction_id)     
+        serializer = AuctionBidSerializer(auction, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(bidder=request.user)
+            return Response(serializer.data , status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     # 경매 삭제
     def delete(self, request, auction_id):

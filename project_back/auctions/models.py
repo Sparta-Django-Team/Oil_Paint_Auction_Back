@@ -10,8 +10,12 @@ class Auction(models.Model):
     start_date = models.DateTimeField('경매 시작', auto_now_add=True)
     end_date = models.DateTimeField('경매 마감', null=True)
     
-    painting = models.OneToOneField(Painting, verbose_name='유화', on_delete=models.CASCADE)
-    auction_like = models.ManyToManyField(User, verbose_name='경매 좋아요', related_name='like_auction', blank=True)
+
+    painting = models.OneToOneField(Painting, verbose_name="유화",on_delete=models.CASCADE)
+    auction_like = models.ManyToManyField(User, verbose_name='경매 좋아요', related_name="like_auction",blank=True)
+    bidder = models.ForeignKey(User,  verbose_name='입찰자', on_delete=models.SET_NULL, null=True, blank=True, related_name='auction_bidder')
+    
+
 
     class Meta:
         db_table = 'auction'
