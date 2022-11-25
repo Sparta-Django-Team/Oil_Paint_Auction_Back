@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> c5ffa79f2ec8a6fa402612b1d29fdca39f22fc72
 
 from django.conf import settings
 from django.db import migrations, models
@@ -30,6 +33,7 @@ class Migration(migrations.Migration):
                 ('owner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owner_painting', to=settings.AUTH_USER_MODEL, verbose_name='소유자')),
             ],
             options={
+
                 'db_table': 'painting',
             },
         ),

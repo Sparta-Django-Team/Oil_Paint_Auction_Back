@@ -6,11 +6,18 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.utils import timezone
 from django.db import IntegrityError
+from django.shortcuts import get_list_or_404
 
 from .serializers import (AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, 
+<<<<<<< HEAD
                         AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer)
 from .models import Auction, Comment
 from paintings.models import Painting
+=======
+                        AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer, AuctionHistoySerializer)
+from .models import Auction, Comment, AuctionHistory
+
+>>>>>>> c5ffa79f2ec8a6fa402612b1d29fdca39f22fc72
 
 #####경매#####
 class AuctionListView(APIView):
@@ -54,7 +61,7 @@ class AuctionDetailView(APIView):
         if request.user:
             serializer = AuctionBidSerializer(auction, data=request.data, context={'request': request})
             if serializer.is_valid():
-                serializer.save(bidder=request.user)
+                serializer.save()
                 return Response(serializer.data , status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN) 
@@ -79,6 +86,15 @@ class AuctionLikeView(APIView):
         else:
             auction.auction_like.add(request.user)
             return Response({"message":"좋아요 되었습니다."}, status=status.HTTP_200_OK)
+        
+class AuctionHistoryView(APIView):
+    permission_classes = [AllowAny]
+    
+    def get(self, request, auction_id):
+        auction_history = get_list_or_404(AuctionHistory, auction=auction_id)
+        serializer = AuctionHistoySerializer(auction_history, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
 
 #####댓글#####
 class CommentView(APIView):
