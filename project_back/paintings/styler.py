@@ -12,12 +12,10 @@ django.setup()
 
 from .models import STYLE_CHOICES
 
-
 def painting_styler(img_url, style_id):
     model = STYLE_CHOICES[int(style_id)][1]
     net = cv2.dnn.readNetFromTorch(f'./paintings/models/{model}.t7')
     img = cv2.imread('./media/'+str(img_url))
-
 
     # pre-processing
     h, w, c = img.shape
@@ -37,16 +35,11 @@ def painting_styler(img_url, style_id):
     output = np.clip(output, 0, 255)
     output = output.astype('uint8')
 
-
     date = datetime.datetime.now()
     saving_path = f'./media/after_img/img_{date:%y%m%d}_{date:%H%M%S}.png'
     cv2.imwrite(saving_path, output)
     img_path = saving_path[8:]
     return img_path
-
-
-
-
 
 """
 01_eccv16_composition_vii.t7
