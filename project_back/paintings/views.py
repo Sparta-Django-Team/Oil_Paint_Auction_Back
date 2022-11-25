@@ -13,11 +13,11 @@ from paintings.serializers import PaintingSerializer, PaintingCreateSerializer
 from .models import Painting
 
 # Create your views here.
-class PaintingStyleSelectView(APIView):
-    permission_classes = [IsAuthenticated]
+# class PaintingStyleSelectView(APIView):
+#     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        pass
+#     def get(self, request):
+#         pass
 
 class ImageUploadView(APIView):
     permission_classes = [IsAuthenticated]
