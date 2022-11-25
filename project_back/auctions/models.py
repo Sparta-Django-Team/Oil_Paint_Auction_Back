@@ -24,8 +24,8 @@ class AuctionHistory(models.Model):
     now_bid = models.PositiveIntegerField('입찰가', null=True, blank=True)
     created_at = models.DateTimeField('생성 시간', auto_now_add=True)
     
-    bidder = models.ForeignKey(User,  verbose_name='입찰자', on_delete=models.CASCADE, null=True, blank=True, related_name='auction_history_bidder')
-    auction = models.ForeignKey(Auction,  verbose_name='경매 작품', on_delete=models.CASCADE, null=True, blank=True)
+    bidder = models.ForeignKey(User, verbose_name='입찰자', on_delete=models.CASCADE, null=True, blank=True, related_name='auction_history_bidder')
+    auction = models.ForeignKey(Auction, verbose_name='경매 작품', on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         db_table = 'auction_history'
