@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from auctions.models import Auction, Comment
+from auctions.models import Auction, Comment, AuctionHistory
 from paintings.serializers import PaintingDetailSerializer
 
 class AuctionCreateSerializer(serializers.ModelSerializer):
@@ -90,6 +90,20 @@ class AuctionBidSerializer(serializers.ModelSerializer):
         
         return instance
 
+class AuctionHistoySerializer(serializers.ModelSerializer):
+    bidder = serializers.SerializerMethodField()
+    auction= serializers.SerializerMethodField()
+    
+    def get_bidder(self, obj):
+        return obj.bidder.nickname
+    
+    def get_auction(self, obj):
+        return obj.auction.painting.title
+    
+    class Meta:
+        model = AuctionHistory
+        fields = "__all__"
+
 class AuctionCommentSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     profile_image = serializers.SerializerMethodField()
@@ -113,3 +127,4 @@ class AuctionCommentCreateSerializer(serializers.ModelSerializer):
                         'error_messages': {
                         'required':'내용을 입력해주세요.',
                         'blank':'내용을 입력해주세요.',}},}
+
