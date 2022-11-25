@@ -4,6 +4,9 @@ from auctions.models import Auction, Comment, AuctionHistory
 from users.models import User
 from paintings.serializers import PaintingDetailSerializer
 
+
+
+
 class AuctionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
