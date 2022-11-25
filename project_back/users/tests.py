@@ -1,5 +1,7 @@
 from django.urls import reverse
+
 from rest_framework.test import APITestCase
+
 from .models import User
 
 class UserSignupAPIViewTestCase(APITestCase):
@@ -341,5 +343,3 @@ class LoginUserTest(APITestCase):
     def test_login_fail(self):
         response = self.client.post(reverse('token_obtain_pair'), self.fail_data)
         self.assertEqual(response.status_code, 401)
-        
-    

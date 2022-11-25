@@ -51,7 +51,6 @@ class User(AbstractBaseUser):
     today_point = models.BooleanField('오늘 포인트받은 여부',default=False)
     term_check = models.BooleanField('약관 동의 여부', null=True, default=False)
     
-    
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
@@ -69,5 +68,3 @@ class User(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.status
-    
-    

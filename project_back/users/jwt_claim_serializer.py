@@ -41,7 +41,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
             #로그인 제한 횟수 counting
             if self.user == None:
-                self.target_user.lock_count = F("lock_count")+1
+                self.target_user.lock_count += 1
                 self.target_user.save()
 
             #로그인 제한 횟수 counting이 5이면 회원 상태 S로 변경
