@@ -7,7 +7,8 @@ from rest_framework.generics import get_object_or_404
 from django.shortcuts import get_list_or_404
 
 from paintings.models import Painting
-from paintings.serializers import (PaintingListSerializer, PaintingCreateSerializer, ImageSerializer)
+from paintings.serializers import (PaintingListSerializer, PaintingCreateSerializer, ImageSerializer, 
+                                PaintingDetailSerializer)
 from .models import Painting, STYLE_CHOICES
 
 
@@ -59,14 +60,22 @@ class PaintingCreateView(APIView):
 
 class PaintingDetailView(APIView):
     permission_classes = [IsAuthenticated]
+    
+    #유화 상세페이지
+    def get(self, request, painting_id):
+        painting = get_object_or_404(Painting, id=painting_id)
+        if request.user == painting.author:
+            serializer = PaintingDetailSerializer(painting)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
 
     #유화 작품 수정
     def put(self, request, painting_id):        
         painting = get_object_or_404(Painting, id=painting_id)
         if request.user == painting.author:
-            serializer = PaintingListSerializer(painting, data=request.data)
+            serializer = PaintingCreateSerializer(painting, data=request.data, partial=True)
             if serializer.is_valid():
-                serializer.save()
+                serializer.save(owner=request.user, author=request.user, after_image=painting.after_image)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
@@ -76,6 +85,6 @@ class PaintingDetailView(APIView):
         painting = get_object_or_404(Painting, id=painting_id)
         if request.user == painting.author:
             painting.delete()
-            return Response(status=status.HTTP_200_OK)
+            return Response({"message":"유화 삭제"}, status=status.HTTP_200_OK)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
 

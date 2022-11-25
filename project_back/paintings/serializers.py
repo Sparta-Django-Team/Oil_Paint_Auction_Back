@@ -58,7 +58,7 @@ class PaintingDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Painting
-        fields = ('id', 'title', 'content', 'author', 'owner', 'after_image')
+        fields = ('id', 'title', 'content', 'author', 'owner', 'after_image', 'created_at', 'updated_at', 'is_auction')
         
 class PaintingListSerializer(serializers.ModelSerializer):
     class Meta:
