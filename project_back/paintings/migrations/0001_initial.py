@@ -30,7 +30,8 @@ class Migration(migrations.Migration):
                 ('owner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owner_painting', to=settings.AUTH_USER_MODEL, verbose_name='소유자')),
             ],
             options={
-                'db_table': 'db_painting',
+
+                'db_table': 'painting',
             },
         ),
     ]
