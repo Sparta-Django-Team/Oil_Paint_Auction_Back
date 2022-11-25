@@ -1,6 +1,5 @@
-from django.urls import path,include
+from django.urls import path
 from paintings import views
-from auctions import views
 
 urlpatterns = [
     path('', views.PaintingListview.as_view(), name='painting_list_view'),

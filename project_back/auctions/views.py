@@ -11,7 +11,7 @@ from django.db import IntegrityError
 
 from .serializers import AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer
 from .models import Auction, Comment
-from paintins.models import Painting
+from paintings.models import Painting
 
 #####경매#####
 class AuctionListView(APIView):
