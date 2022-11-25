@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from .models import Painting
-
 from .styler import painting_styler
 
 class ImageSerializer(serializers.ModelSerializer):

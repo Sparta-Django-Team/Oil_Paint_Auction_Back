@@ -63,8 +63,7 @@ class AuctionLikeView(APIView):
             auction.auction_like.add(request.user)
             return Response({"message":"좋아요 되었습니다."}, status=status.HTTP_200_OK)
 
-
-##### Comment #####
+#####댓글#####
 class CommentView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -83,7 +82,6 @@ class CommentView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class CommentDetailView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -93,16 +91,16 @@ class CommentDetailView(APIView):
         if request.user == comment.user:
             serializer = AuctionCommentCreateSerializer(comment, data=request.data)
             if serializer.is_valid():
-                serializer.save(user=request.user, auction_id = auction_id)
+                serializer.save(user=request.user, auction_id=auction_id)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response("접근 권한 없음", status=status.HTTP_403_FORBIDDEN)
+        return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
 
     #댓글 삭제
     def delete(self, request, auction_id, comment_id):
         comment= get_object_or_404(Comment, id=comment_id)
         if request.user == comment.user:
             comment.delete()
-            return Response(status=status.HTTP_200_OK)
-        return Response("접근 권한 없음", status=status.HTTP_403_FORBIDDEN)
+            return Response({"message":"댓글 삭제 완료"},status=status.HTTP_200_OK)
+        return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
 
