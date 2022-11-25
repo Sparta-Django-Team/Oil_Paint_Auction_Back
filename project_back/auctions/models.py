@@ -12,14 +12,27 @@ class Auction(models.Model):
 
     painting = models.OneToOneField(Painting, verbose_name="유화",on_delete=models.CASCADE)
     auction_like = models.ManyToManyField(User, verbose_name='경매 좋아요', related_name="like_auction",blank=True)
-    bidder = models.ForeignKey(User,  verbose_name='입찰자', on_delete=models.PROTECT, null=True, blank=True, related_name='auction_bidder')
-
+    bidder = models.ForeignKey(User,  verbose_name='입찰자', on_delete=models.CASCADE, null=True, blank=True, related_name='auction_bidder')
     class Meta:
         db_table = 'auction'
         ordering = ['id']
 
     def __str__(self):
         return f'[제목]{self.painting.title}, [원작자]{self.painting.author}, [소유자]{self.painting.owner}'
+
+class AuctionHistory(models.Model):
+    now_bid = models.PositiveIntegerField('입찰가', null=True, blank=True)
+    created_at = models.DateTimeField('생성 시간', auto_now_add=True)
+    
+    bidder = models.ForeignKey(User,  verbose_name='입찰자', on_delete=models.CASCADE, null=True, blank=True, related_name='auction_history_bidder')
+    auction = models.ForeignKey(Auction,  verbose_name='경매 작품', on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        db_table = 'auction_history'
+        ordering = ['id']
+        
+    def __str__(self):
+        return f'[제목]{self.auction.painting.title}, [입찰자]{self.bidder}'
 
 class Comment(models.Model):
     content = models.TextField('내용', max_length=100)
