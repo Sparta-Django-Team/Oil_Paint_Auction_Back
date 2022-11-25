@@ -51,7 +51,7 @@ class AuctionBidSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Auction
-        fields = ('id', 'start_bid', 'now_bid', 'bidder' )
+        fields = ('id', 'start_bid', 'now_bid', 'bidder', )
 
     def validate(self, data):
         start_bid = self.instance.start_bid         # 시작 입찰가
@@ -59,7 +59,7 @@ class AuctionBidSerializer(serializers.ModelSerializer):
         enter_bid = data["now_bid"]                 # user가 front에 작성한 입찰가
         bidder = self.instance.bidder               # 최고 입찰가의 입찰자     
         user = self.context.get("request").user
- 
+
         # 100포인트 이상 입찰가 검사
         if enter_bid % 100 != 0:
             raise serializers.ValidationError(detail={"error": "100 포인트 단위로 입찰 가능합니다."})
@@ -71,9 +71,12 @@ class AuctionBidSerializer(serializers.ModelSerializer):
         # 현재 입찰가와 입찰가 비교
         if enter_bid <= int(now_bid or 0):
             raise serializers.ValidationError(detail={"error": "현재 입찰가보다 같거나 적은 금액으로 입찰 하실 수 없습니다."})
-     
+    
+        # 유저 보유포인트와 입찰가 비교
         if user.point < enter_bid:
                 raise serializers.ValidationError(detail={"error": f"포인트가 부족합니다. 현재 보유중인 포인트는 {user.point} 입니다. 입찰가를 확인 해주세요."})
+        
+        # 현재 입찰자와 최고가 입찰자 비교
         if user == bidder:
             raise serializers.ValidationError(detail={"error": "현재 이미 최고가로 입찰중입니다."})
             
@@ -82,9 +85,10 @@ class AuctionBidSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.now_bid = validated_data.get('now_bid', instance.now_bid)
         instance.bidder = validated_data.get('bidder', instance.bidder)
+        
         instance.save()
+        
         return instance
-
 
 class AuctionCommentSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
@@ -109,4 +113,3 @@ class AuctionCommentCreateSerializer(serializers.ModelSerializer):
                         'error_messages': {
                         'required':'내용을 입력해주세요.',
                         'blank':'내용을 입력해주세요.',}},}
-

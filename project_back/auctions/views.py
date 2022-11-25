@@ -4,14 +4,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from django.shortcuts import get_list_or_404
 from django.utils import timezone
-
 from django.db import IntegrityError
 
-from .serializers import AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer
+from .serializers import (AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, 
+                        AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer)
 from .models import Auction, Comment
-from paintins.models import Painting
 
 #####경매#####
 class AuctionListView(APIView):
@@ -40,21 +38,25 @@ class AuctionCreateView(APIView):
 class AuctionDetailView(APIView):
     permissions_classes = [AllowAny] 
 
+    #경매 상세페이지
     def get(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
         # 마감 날짜 확인
         if auction.end_date > timezone.now():
             serializer = AuctionDetailSerializer(auction)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response("경매가 마감되었습니다.",status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message":"경매가 마감되었습니다."},status=status.HTTP_400_BAD_REQUEST)
 
+    #경매 현재 입찰가 등록
     def put(self, request, auction_id):
-        auction = get_object_or_404(Auction, id=auction_id)     
-        serializer = AuctionBidSerializer(auction, data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save(bidder=request.user)
-            return Response(serializer.data , status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        auction = get_object_or_404(Auction, id=auction_id)
+        if request.user:
+            serializer = AuctionBidSerializer(auction, data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save(bidder=request.user)
+                return Response(serializer.data , status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN) 
     
     # 경매 삭제
     def delete(self, request, auction_id):
@@ -117,4 +119,3 @@ class CommentDetailView(APIView):
             comment.delete()
             return Response({"message":"댓글 삭제 완료"},status=status.HTTP_200_OK)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
-
