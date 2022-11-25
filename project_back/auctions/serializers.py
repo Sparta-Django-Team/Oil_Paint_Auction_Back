@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from auctions.models import Auction
+from auctions.models import Auction, Comment
 from paintings.serializers import PaintingDetailSerializer
 
 class AuctionCreateSerializer(serializers.ModelSerializer):
@@ -32,3 +32,23 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
         model = Auction
         fields = "__all__"
 
+
+class AuctionCommentSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    profile_image = serializers.SerializerMethodField()
+    auction = serializers.StringRelatedField()
+
+    def get_user(self, obj):
+        return obj.user.nickname
+
+    def get_profile_image(self, obj):
+        return obj.user.profile_image.url
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+class AuctionCommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('comment',)
