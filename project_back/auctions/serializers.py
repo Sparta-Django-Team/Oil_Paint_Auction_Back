@@ -1,27 +1,8 @@
 from rest_framework import serializers
 
-<<<<<<< HEAD
-from paintings.models import Painting
-from auctions.models import Auction, Comment
-=======
 from auctions.models import Auction, Comment, AuctionHistory
->>>>>>> c5ffa79f2ec8a6fa402612b1d29fdca39f22fc72
 from paintings.serializers import PaintingDetailSerializer
 
-
-
-class MyPageserializer(serializers.ModelSerializer):
-    owner = serializers.SerializerMethodField()
-    author = serializers.SerializerMethodField()
-
-    def get_owner(self, obj):
-        return obj.owner.nickname
-    def get_author(self, obj):
-        return obj.author.nickname
-        
-    class Meta:
-        model = Painting
-        fields = "__all__"
 
 
 

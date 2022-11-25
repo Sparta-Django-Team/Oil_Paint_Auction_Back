@@ -9,15 +9,10 @@ from django.db import IntegrityError
 from django.shortcuts import get_list_or_404
 
 from .serializers import (AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, 
-<<<<<<< HEAD
-                        AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer)
-from .models import Auction, Comment
-from paintings.models import Painting
-=======
                         AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer, AuctionHistoySerializer)
 from .models import Auction, Comment, AuctionHistory
 
->>>>>>> c5ffa79f2ec8a6fa402612b1d29fdca39f22fc72
+
 
 #####경매#####
 class AuctionListView(APIView):
