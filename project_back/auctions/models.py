@@ -18,7 +18,7 @@ class Auction(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return f'[제목]{self.painting.title}'
+        return f'[제목]{self.painting.title}, [원작자]{self.painting.author}, [소유자]{self.painting.owner}'
 
 class Comment(models.Model):
     content = models.TextField('내용', max_length=100)

@@ -50,6 +50,7 @@ class ImageUploadView(APIView):
 
 class PaintingCreateView(APIView):
     permission_classes = [IsAuthenticated]
+    
     #이미지 스타일 적용된 유화 생성(after)
     def put(self, request, painting_id):
         painting = get_object_or_404(Painting, id=painting_id)
