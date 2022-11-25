@@ -21,13 +21,16 @@ class Auction(models.Model):
         return f'[제목]{self.painting.title}'
 
 class Comment(models.Model):
-    comment = models.TextField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now = True)
+    content = models.TextField('내용', max_length=100)
+    created_at = models.DateTimeField('생성 시간', auto_now_add=True)
+    updated_at = models.DateTimeField('수정 시간', auto_now = True)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="comment")
+    user = models.ForeignKey(User, verbose_name='작성자', on_delete=models.CASCADE)
+    auction = models.ForeignKey(Auction, verbose_name='경매 작품', on_delete=models.CASCADE, related_name="comment")
 
     class Meta:
         db_table = 'db_comment'
         ordering = ['-created_at']
+        
+    def __str__(self):
+        return f'[작성자]{self.user}, [내용]{self.content}'

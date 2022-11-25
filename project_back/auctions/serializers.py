@@ -7,6 +7,16 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
         fields = ('start_bid', 'end_date',)
+        extra_kwargs = {'start_bid':{
+                        'error_messages': {
+                        'required':'입찰가를 입력해주세요.',
+                        'blank':'입찰가를 입력해주세요.',}},
+                        
+                        'end_date':{
+                        'error_messages': {
+                        'required':'날짜를 입력해주세요.',
+                        'blank':'날짜를 입력해주세요.',}},
+                        }
 
 class AuctionListSerializer(serializers.ModelSerializer):
     auction_like = serializers.StringRelatedField(many=True)
@@ -51,4 +61,8 @@ class AuctionCommentSerializer(serializers.ModelSerializer):
 class AuctionCommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ('comment',)
+        fields = ('content',)
+        extra_kwargs = {'content':{
+                        'error_messages': {
+                        'required':'내용을 입력해주세요.',
+                        'blank':'내용을 입력해주세요.',}},}
