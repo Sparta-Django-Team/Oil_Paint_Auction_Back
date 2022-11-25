@@ -3,6 +3,9 @@ from rest_framework import serializers
 from auctions.models import Auction, Comment, AuctionHistory
 from paintings.serializers import PaintingDetailSerializer
 
+
+
+
 class AuctionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction

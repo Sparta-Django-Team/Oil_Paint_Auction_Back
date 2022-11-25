@@ -13,6 +13,7 @@ from .serializers import (AuctionCreateSerializer, AuctionListSerializer, Auctio
 from .models import Auction, Comment, AuctionHistory
 
 
+
 #####경매#####
 class AuctionListView(APIView):
     permissions_classes = [AllowAny] 
@@ -111,6 +112,13 @@ class CommentView(APIView):
 
 class CommentDetailView(APIView):
     permission_classes = [IsAuthenticated]
+    
+    #댓글 조회
+    def get(self, request, auction_id, comment_id):
+        comment = get_object_or_404(Comment, auction_id=auction_id, id=comment_id)
+        serializer = AuctionCommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     
     #댓글 수정
     def put(self, request, auction_id, comment_id):
