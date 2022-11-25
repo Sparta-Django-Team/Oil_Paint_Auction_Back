@@ -7,71 +7,114 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_list_or_404
 from django.utils import timezone
 
-from .serializers import MyPageserializer,AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer
-from .models import Painting, Auction
-
 from django.db import IntegrityError
 
-#유화 리스트페이지
-class MyPageView(APIView):
-    permission_classes = [IsAuthenticated] 
-    def get(self, request):
-        painting = get_list_or_404(Painting, author=request.user.id)        
-        serializer = MyPageserializer(painting, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+from .serializers import AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer
+from .models import Auction, Comment
+from paintins.models import Painting
 
-
-# 경매 전체 리스트
-class AuctionAlllistView(APIView):
+#####경매#####
+class AuctionListView(APIView):
     permissions_classes = [AllowAny] 
+    
+    #경매 리스트
     def get(self, request):
         auction = Auction.objects.all()
         serializer = AuctionListSerializer(auction, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class AuctionCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    #경매 생성
+    def post(self, request, painting_id): 
+        serializer = AuctionCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                serializer.save(painting_id=painting_id)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            
+            except IntegrityError as e:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# 경매 상세 조회
 class AuctionDetailView(APIView):
     permissions_classes = [AllowAny] 
-    def get(self, request,user_id, auction_id):
+
+    def get(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
-        print(auction)
         # 마감 날짜 확인
         if auction.end_date > timezone.now():
             serializer = AuctionDetailSerializer(auction)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response("경매가 마감되었습니다.",status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, auction_id):
+        auction = get_object_or_404(Auction, id=auction_id)     
+        serializer = AuctionBidSerializer(auction, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(bidder=request.user)
+            return Response(serializer.data , status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     # 경매 삭제
-    def delete(self, request, user_id, auction_id):
+    def delete(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
         if request.user == auction.painting.author:
             auction.delete()
-            return Response(status=status.HTTP_200_OK)
-        return Response("접근 권한 없음", status=status.HTTP_403_FORBIDDEN) 
-
-
-#경매 생성
-class AuctionListView(APIView):
-    permission_classes = [IsAuthenticated]
-    def post(self,request,painting_id): 
-        serializer = AuctionCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                serializer.save(painting_id=painting_id)
-                return Response(serializer.data,status=status.HTTP_200_OK)
-            except IntegrityError as e:
-                return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({"message":"경매 삭제"}, status=status.HTTP_200_OK)
+        return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN) 
 
 #경매 좋아요
-class LikeView(APIView):
+class AuctionLikeView(APIView):
     permission_classes = [IsAuthenticated]
-    def post(self,request,auction_id):
+    
+    def post(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
         if request.user in auction.auction_like.all():
             auction.auction_like.remove(request.user)
-            return Response('좋아요 취소되었습니다.',status=status.HTTP_200_OK)
+            return Response({"message":"좋아요 취소되었습니다."}, status=status.HTTP_200_OK)
         else:
             auction.auction_like.add(request.user)
-            return Response('좋아요 되었습니다.',status=status.HTTP_200_OK)
+            return Response({"message":"좋아요 되었습니다."}, status=status.HTTP_200_OK)
+
+#####댓글#####
+class CommentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    # 댓글 조회
+    def get(self, request, auction_id):
+        auction = get_object_or_404(Auction, id=auction_id)
+        comments = auction.comment.all()
+        serializer = AuctionCommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # 댓글 생성
+    def post(self, request, auction_id):
+        serializer = AuctionCommentCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user, auction_id=auction_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CommentDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    #댓글 수정
+    def put(self, request, auction_id, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user:
+            serializer = AuctionCommentCreateSerializer(comment, data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=request.user, auction_id=auction_id)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
+
+    #댓글 삭제
+    def delete(self, request, auction_id, comment_id):
+        comment= get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user:
+            comment.delete()
+            return Response({"message":"댓글 삭제 완료"},status=status.HTTP_200_OK)
+        return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
+
