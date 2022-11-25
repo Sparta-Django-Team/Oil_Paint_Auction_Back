@@ -18,7 +18,7 @@ class PaintingListview(APIView):
     
     #유화 리스트
     def get(self, request):
-        painting = get_list_or_404(Painting, author=request.user.id)        
+        painting = get_list_or_404(Painting, owner=request.user.id)        
         serializer = PaintingListSerializer(painting, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -64,7 +64,7 @@ class PaintingDetailView(APIView):
     #유화 상세페이지
     def get(self, request, painting_id):
         painting = get_object_or_404(Painting, id=painting_id)
-        if request.user == painting.author:
+        if request.user == painting.owner:
             serializer = PaintingDetailSerializer(painting)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
@@ -72,7 +72,7 @@ class PaintingDetailView(APIView):
     #유화 작품 수정
     def put(self, request, painting_id):        
         painting = get_object_or_404(Painting, id=painting_id)
-        if request.user == painting.author:
+        if request.user == painting.owner:
             serializer = PaintingCreateSerializer(painting, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save(owner=request.user, author=request.user, after_image=painting.after_image)
@@ -83,7 +83,7 @@ class PaintingDetailView(APIView):
     #유화 작품 삭제
     def delete(self, request, painting_id):        
         painting = get_object_or_404(Painting, id=painting_id)
-        if request.user == painting.author:
+        if request.user == painting.owner:
             painting.delete()
             return Response({"message":"유화 삭제"}, status=status.HTTP_200_OK)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
