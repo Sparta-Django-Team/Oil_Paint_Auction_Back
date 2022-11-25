@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_list_or_404
 from django.utils import timezone
 
-from .serializers import MyPageserializer,AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer
+from .serializers import MyPageserializer,AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, AuctionBidSerializer
 from .models import Painting, Auction
 
 from django.db import IntegrityError
@@ -33,17 +33,24 @@ class AuctionAlllistView(APIView):
 # 경매 상세 조회
 class AuctionDetailView(APIView):
     permissions_classes = [AllowAny] 
-    def get(self, request,user_id, auction_id):
+    def get(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
-        print(auction)
         # 마감 날짜 확인
         if auction.end_date > timezone.now():
             serializer = AuctionDetailSerializer(auction)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response("경매가 마감되었습니다.",status=status.HTTP_400_BAD_REQUEST)
     
+    def put(self, request, auction_id):
+        auction = get_object_or_404(Auction, id=auction_id)     
+        serializer = AuctionBidSerializer(auction, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(bidder=request.user)
+            return Response(serializer.data , status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     # 경매 삭제
-    def delete(self, request, user_id, auction_id):
+    def delete(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
         if request.user == auction.painting.author:
             auction.delete()
