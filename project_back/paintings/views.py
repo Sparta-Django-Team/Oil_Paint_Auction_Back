@@ -21,7 +21,6 @@ class PaintingListview(APIView):
         serializer = PaintingListSerializer(painting, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
 class PaintingStyleSelectView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -29,7 +28,6 @@ class PaintingStyleSelectView(APIView):
     def get(self, requets):
         style = [[x, y] for x, y in STYLE_CHOICES]
         return Response(style, status=status.HTTP_200_OK)
-
 
 class ImageUploadView(APIView):
     permission_classes = [IsAuthenticated]
@@ -47,7 +45,6 @@ class ImageUploadView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class PaintingCreateView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -59,7 +56,6 @@ class PaintingCreateView(APIView):
             serializer.save(owner=request.user, author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class PaintingDetailView(APIView):
     permission_classes = [IsAuthenticated]
