@@ -30,7 +30,7 @@ class Comment(models.Model):
     auction = models.ForeignKey(Auction, verbose_name='경매 작품', on_delete=models.CASCADE, related_name="comment")
 
     class Meta:
-        db_table = 'db_comment'
+        db_table = 'comment'
         ordering = ['-created_at']
         
     def __str__(self):
