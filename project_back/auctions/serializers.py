@@ -57,6 +57,7 @@ class AuctionBidSerializer(serializers.ModelSerializer):
         fields = ('id', 'start_bid', 'now_bid', 'bidder', )
 
     def validate(self, data):
+        auction_id = self.instance.id            
         start_bid = self.instance.start_bid         # 시작 입찰가
         now_bid = self.instance.now_bid             # 최고 입찰가
         enter_bid = data["now_bid"]                 # user가 front에 작성한 입찰가
@@ -82,7 +83,10 @@ class AuctionBidSerializer(serializers.ModelSerializer):
         # 현재 입찰자와 최고가 입찰자 비교
         if user == bidder:
             raise serializers.ValidationError(detail={"error": "현재 이미 최고가로 입찰중입니다."})
-            
+        
+        # 경매 거래내역 저장
+        AuctionHistory.objects.create(now_bid=enter_bid, bidder=user.id, auction=auction_id)
+        
         return data
     
     def update(self, instance, validated_data):
