@@ -4,7 +4,14 @@ from auctions.models import Auction
 from paintings.models import Painting
 
 class MyPageserializer(serializers.ModelSerializer):
+    owner = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField()
 
+    def get_owner(self, obj):
+        return obj.owner.nickname
+    def get_author(self, obj):
+        return obj.author.nickname
+        
     class Meta:
         model = Painting
         fields = "__all__"
