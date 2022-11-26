@@ -52,7 +52,7 @@ class AuctionCreateView(APIView):
         serializer = AuctionCreateSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                serializer.save(painting_id=painting_id, seller=request.user.id)
+                serializer.save(painting_id=painting_id, seller=request.user)
                 painting.is_auction = True
                 painting.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
