@@ -10,7 +10,7 @@ from paintings.serializers import PaintingDetailSerializer
 class AuctionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
-        fields = ('start_bid', 'end_date',)
+        fields = ('start_bid', 'end_date','now_bid', )
         extra_kwargs = {'start_bid':{
                         'error_messages': {
                         'required':'입찰가를 입력해주세요.',
