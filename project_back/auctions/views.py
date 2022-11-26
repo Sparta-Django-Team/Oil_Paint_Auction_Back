@@ -6,7 +6,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.utils import timezone
 from django.db import IntegrityError
-from django.shortcuts import get_list_or_404
 
 from .serializers import (AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, 
                         AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer, AuctionHistoySerializer)
@@ -19,9 +18,8 @@ from users.models import User
 class AuctionListView(APIView):
     permissions_classes = [AllowAny] 
     
-    # 경매 리스트
-    def get(self, request):
-        auction = Auction.objects.all()
+    def get(self, request):        
+        auction = Auction.objects.all()        
         serializer = AuctionListSerializer(auction, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -84,7 +82,6 @@ class AuctionDetailView(APIView):
             return Response({"message":"낙찰 완료"}, status=status.HTTP_200_OK) 
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN) 
 
-
     # 경매 상세페이지
     def get(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
@@ -131,7 +128,7 @@ class AuctionHistoryView(APIView):
     
     # 경매 거래내역 표시
     def get(self, request, auction_id):
-        auction_history = get_list_or_404(AuctionHistory, auction=auction_id)
+        auction_history = AuctionHistory.objects.filter(auction=auction_id).order_by('-created_at')
         serializer = AuctionHistoySerializer(auction_history, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

@@ -49,16 +49,24 @@ class PaintingCreateSerializer(serializers.ModelSerializer):
 class PaintingDetailSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     owner = serializers.SerializerMethodField()
+    owner_profile_image = serializers.SerializerMethodField()
+    author_profile_image = serializers.SerializerMethodField()
 
     def get_author(self, obj):
         return obj.author.nickname
 
     def get_owner(self, obj):
         return obj.owner.nickname
+    
+    def get_owner_profile_image(self, obj):
+        return obj.owner.profile_image.url
+    
+    def get_author_profile_image(self, obj):
+        return obj.author.profile_image.url
 
     class Meta:
         model = Painting
-        fields = ('id', 'title', 'content', 'author', 'owner', 'after_image', 'created_at', 'updated_at', 'is_auction')
+        fields = ('id', 'title', 'content', 'author', 'owner', 'after_image', 'created_at', 'updated_at', 'is_auction','owner_profile_image','author_profile_image', )
         
 class PaintingListSerializer(serializers.ModelSerializer):
     class Meta:

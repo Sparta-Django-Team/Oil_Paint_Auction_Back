@@ -117,12 +117,16 @@ class AuctionBidSerializer(serializers.ModelSerializer):
 class AuctionHistoySerializer(serializers.ModelSerializer):
     bidder = serializers.SerializerMethodField()
     auction= serializers.SerializerMethodField()
+    bidder_profile_image = serializers.SerializerMethodField()
     
     def get_bidder(self, obj):
         return obj.bidder.nickname
     
     def get_auction(self, obj):
         return obj.auction.painting.title
+    
+    def get_bidder_profile_image(self, obj):
+        return obj.bidder.profile_image.url
     
     class Meta:
         model = AuctionHistory
