@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
-from rest_framework.parsers import MultiPartParser
 
 from django.shortcuts import get_list_or_404
 
@@ -59,7 +58,6 @@ class ImageUploadView(APIView):
 
 class PaintingCreateView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser] #swagger에 multipart/form-data 쓰기 위해
     
     #이미지 스타일 적용된 유화 생성(after)
     @swagger_auto_schema(request_body=PaintingCreateSerializer, 
