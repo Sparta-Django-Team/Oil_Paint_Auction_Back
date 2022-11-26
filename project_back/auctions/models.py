@@ -11,8 +11,10 @@ class Auction(models.Model):
 
     painting = models.OneToOneField(Painting, verbose_name="유화",on_delete=models.CASCADE, related_name="paintings")
     auction_like = models.ManyToManyField(User, verbose_name='경매 좋아요', related_name="like_auction",blank=True)
+    
     bidder = models.ForeignKey(User,  verbose_name='입찰자', on_delete=models.CASCADE, null=True, blank=True, related_name='auction_bidder')
-
+    seller = models.ForeignKey(User,  verbose_name='판매자',on_delete=models.CASCADE, null=True, related_name='auction_seller')    
+    
     class Meta:
         db_table = 'auction'
         ordering = ['id']
