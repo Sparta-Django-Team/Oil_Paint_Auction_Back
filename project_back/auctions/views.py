@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.utils import timezone
 from django.db import IntegrityError
+from django.shortcuts import get_list_or_404
 
 from drf_yasg.utils import swagger_auto_schema
 
@@ -35,8 +36,7 @@ class AuctionMyListView(APIView):
     @swagger_auto_schema(operation_summary="나의 경매 리스트", 
                         responses={ 200 : '성공', 404 : '찾을 수 없음', 500:'서버 에러'})
     def get(self, request):
-        painting = get_object_or_404(Painting, owner=request.user.id)    
-        auction = Auction.objects.filter(painting=painting)
+        auction = get_list_or_404(Auction,seller=request.user.id)
         serializer = AuctionListSerializer(auction, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -52,7 +52,7 @@ class AuctionCreateView(APIView):
         serializer = AuctionCreateSerializer(data=request.data)
         if serializer.is_valid():
             try:
-                serializer.save(painting_id=painting_id)
+                serializer.save(painting_id=painting_id, seller=request.user)
                 painting.is_auction = True
                 painting.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -223,4 +223,3 @@ class CommentDetailView(APIView):
             comment.delete()
             return Response({"message":"댓글 삭제 완료"},status=status.HTTP_200_OK)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
-    
