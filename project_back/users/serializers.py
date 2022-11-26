@@ -1,4 +1,5 @@
 from rest_framework import serializers, exceptions
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import check_password
@@ -200,4 +201,20 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'nickname', 'profile_image', 'point',)
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate(self, attrs):
+        self.token = attrs['refresh']
+        return attrs
+
+    def save(self, **kwargs):
+        try:
+            RefreshToken(self.token).blacklist()
+
+        except TokenError:
+            raise serializers.ValidationError(detail={"만료된 토큰":"유효하지 않거나 만료된 토큰입니다."})
+    #만료된 모든 토큰 삭제: (python manage.py flushexpiredtokens) cron으로 매시간 마다 설정
+    
     

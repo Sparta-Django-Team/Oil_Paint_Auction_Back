@@ -13,7 +13,7 @@ from django.utils.encoding import DjangoUnicodeDecodeError, force_str
 
 from .jwt_claim_serializer import CustomTokenObtainPairSerializer
 from .serializers import (UserSerializer, ChangePasswordSerializer, 
-                        ProfileSerializer, SetNewPasswordSerializer, PasswordResetSerializer)
+                        ProfileSerializer, SetNewPasswordSerializer, PasswordResetSerializer, LogoutSerializer)
 from .models import User
 
 class UserView(APIView):
@@ -105,6 +105,20 @@ class SetNewPasswordView(APIView):
 #로그인 JWT
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+#로그아웃
+class LogoutAPIview(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        serializer = LogoutSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"로그아웃 성공"}, status=status.HTTP_201_CREATED )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST )
+        
+        
+        
 
 #미완성
 # class KakaoLoginView(APIView):

@@ -9,6 +9,7 @@ urlpatterns = [
     # path("kakao/", views.KakaoLoginView.as_view(), name="kakao"), #미완성
     path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('logout/', views.LogoutAPIview.as_view(), name='logout'),
     
     #password
     path('changepassword/', views.ChangePasswordView.as_view(), name='change_password_view'),
