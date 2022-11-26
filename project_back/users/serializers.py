@@ -10,6 +10,7 @@ from django.utils.encoding import smart_bytes, force_str
 import re
 
 from .models import User
+from auctions.serializers import AuctionListSerializer
 from .utils import Util
 
 class UserSerializer(serializers.ModelSerializer):
@@ -198,9 +199,10 @@ class SetNewPasswordSerializer(serializers.Serializer):
         return super().validate(attrs)
 
 class ProfileSerializer(serializers.ModelSerializer):
+    like_auction = AuctionListSerializer(many=True)
     class Meta:
         model = User
-        fields = ('email', 'nickname', 'profile_image', 'point',)
+        fields = ('email', 'nickname', 'profile_image', 'point','like_auction', )
 
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
@@ -216,5 +218,3 @@ class LogoutSerializer(serializers.Serializer):
         except TokenError:
             raise serializers.ValidationError(detail={"만료된 토큰":"유효하지 않거나 만료된 토큰입니다."})
     #만료된 모든 토큰 삭제: (python manage.py flushexpiredtokens) cron으로 매시간 마다 설정
-    
-    

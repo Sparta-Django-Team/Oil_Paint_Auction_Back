@@ -4,7 +4,6 @@ from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.parsers import MultiPartParser
 
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -21,7 +20,6 @@ from .models import User
 
 class UserView(APIView):
     permission_classes = [AllowAny]
-    parser_classes = [MultiPartParser] #swagger에 multipart/form-data 쓰기 위해
     
     #개인 프로필
     @swagger_auto_schema(operation_summary="개인 프로필",  

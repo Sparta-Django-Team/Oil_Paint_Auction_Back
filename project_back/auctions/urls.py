@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     # Auction
     path('',views.AuctionListView.as_view(), name='auction_list_view'),
+    path('mylist/',views.AuctionMyListView.as_view(), name='auction_mylist_view'),
     path('<int:painting_id>/', views.AuctionCreateView.as_view(), name='auction_create_view'),
     path('detail/<int:auction_id>/',views.AuctionDetailView.as_view(), name='auction_detail_view'),    
     path('<int:auction_id>/likes/',views.AuctionLikeView.as_view(), name="auction_like_view"),

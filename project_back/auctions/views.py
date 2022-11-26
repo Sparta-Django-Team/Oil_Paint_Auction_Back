@@ -21,10 +21,22 @@ class AuctionListView(APIView):
     permissions_classes = [AllowAny] 
     
     #경매 리스트
-    @swagger_auto_schema(operation_summary="경매 리스트", 
+    @swagger_auto_schema(operation_summary="전체 경매 리스트", 
                         responses={ 200 : '성공', 500:'서버 에러'})
     def get(self, request):        
         auction = Auction.objects.all()        
+        serializer = AuctionListSerializer(auction, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class AuctionMyListView(APIView):
+    permissions_classes = [IsAuthenticated] 
+    
+    #나의 경매 리스트
+    @swagger_auto_schema(operation_summary="나의 경매 리스트", 
+                        responses={ 200 : '성공', 404 : '찾을 수 없음', 500:'서버 에러'})
+    def get(self, request):
+        painting = get_object_or_404(Painting, owner=request.user.id)    
+        auction = Auction.objects.filter(painting=painting)
         serializer = AuctionListSerializer(auction, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -141,7 +153,7 @@ class AuctionLikeView(APIView):
         else:
             auction.auction_like.add(request.user)
             return Response({"message":"좋아요 되었습니다."}, status=status.HTTP_200_OK)
-        
+
 class AuctionHistoryView(APIView):
     permission_classes = [AllowAny]
     
@@ -211,3 +223,4 @@ class CommentDetailView(APIView):
             comment.delete()
             return Response({"message":"댓글 삭제 완료"},status=status.HTTP_200_OK)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
+    
