@@ -7,6 +7,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.utils import timezone
 from django.db import IntegrityError
 
+from drf_yasg.utils import swagger_auto_schema
+
 from .serializers import (AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, 
                         AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer, AuctionHistoySerializer)
 from .models import Auction, Comment, AuctionHistory
@@ -18,6 +20,9 @@ from users.models import User
 class AuctionListView(APIView):
     permissions_classes = [AllowAny] 
     
+    #경매 리스트
+    @swagger_auto_schema(operation_summary="경매 리스트", 
+                        responses={ 200 : '성공', 500:'서버 에러'})
     def get(self, request):        
         auction = Auction.objects.all()        
         serializer = AuctionListSerializer(auction, many=True)
@@ -27,6 +32,9 @@ class AuctionCreateView(APIView):
     permission_classes = [IsAuthenticated]
     
     # 경매 생성
+    @swagger_auto_schema(request_body=AuctionCreateSerializer, 
+                        operation_summary="경매 생성", 
+                        responses={ 200 : '성공', 400:'인풋값 에러', 404:'찾을 수 없음', 500:'서버 에러'})
     def post(self, request, painting_id):
         painting = get_object_or_404(Painting, id=painting_id)
         serializer = AuctionCreateSerializer(data=request.data)
@@ -44,6 +52,8 @@ class AuctionDetailView(APIView):
     permissions_classes = [AllowAny] 
 
     # 경매 낙찰
+    @swagger_auto_schema(operation_summary="경매 낙찰", 
+                        responses={ 200 : '성공', 403:'접근 권한 없음', 404:'찾을 수 없음', 500:'서버 에러'})
     def post(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
 
@@ -83,6 +93,8 @@ class AuctionDetailView(APIView):
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN) 
 
     # 경매 상세페이지
+    @swagger_auto_schema(operation_summary="경매 상세페이지", 
+                        responses={ 200 : '성공', 400:'날짜 조건 안맞음', 404:'찾을 수 없음', 500:'서버 에러'})
     def get(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
         # 마감 날짜 확인
@@ -92,6 +104,9 @@ class AuctionDetailView(APIView):
         return Response({"message":"경매가 마감되었습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
     # 경매 현재 입찰가 등록 & 포인트 처리
+    @swagger_auto_schema(request_body=AuctionBidSerializer, 
+                        operation_summary="경매 입찰가 등록", 
+                        responses={ 200 : '성공',  400:'인풋값 에러', 403:'접근 권한 없음', 404:'찾을 수 없음', 500:'서버 에러'})
     def put(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
         if request.user:
@@ -103,6 +118,8 @@ class AuctionDetailView(APIView):
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN) 
     
     # 경매 삭제
+    @swagger_auto_schema(operation_summary="경매 삭제", 
+                        responses={ 200 : '성공', 403:'접근 권한 없음', 404:'찾을 수 없음', 500:'서버 에러'})
     def delete(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
         if request.user == auction.painting.owner:
@@ -114,6 +131,8 @@ class AuctionDetailView(APIView):
 class AuctionLikeView(APIView):
     permission_classes = [IsAuthenticated]
     
+    @swagger_auto_schema(operation_summary="경매 좋아요", 
+                        responses={ 200 : '성공', 404:'찾을 수 없음', 500:'서버 에러'})
     def post(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
         if request.user in auction.auction_like.all():
@@ -127,6 +146,8 @@ class AuctionHistoryView(APIView):
     permission_classes = [AllowAny]
     
     # 경매 거래내역 표시
+    @swagger_auto_schema(operation_summary="경매 거래내역", 
+                        responses={ 200 : '성공', 500:'서버 에러'})
     def get(self, request, auction_id):
         auction_history = AuctionHistory.objects.filter(auction=auction_id).order_by('-created_at')
         serializer = AuctionHistoySerializer(auction_history, many=True)
@@ -138,6 +159,8 @@ class CommentView(APIView):
     permission_classes = [IsAuthenticated]
 
     # 댓글 조회
+    @swagger_auto_schema(operation_summary="댓글 전체 조회", 
+                        responses={ 200 : '성공', 404:'찾을 수 없음', 500:'서버 에러'})
     def get(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
         comments = auction.comment.all()
@@ -145,6 +168,8 @@ class CommentView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # 댓글 생성
+    @swagger_auto_schema(request_body=AuctionCommentCreateSerializer, operation_summary="댓글 생성", 
+                        responses={ 201 : '성공', 400:'인풋값 에러', 500:'서버 에러'})
     def post(self, request, auction_id):
         serializer = AuctionCommentCreateSerializer(data=request.data)
         if serializer.is_valid():
@@ -156,6 +181,8 @@ class CommentDetailView(APIView):
     permission_classes = [IsAuthenticated]
     
     #댓글 조회
+    @swagger_auto_schema(operation_summary="댓글 상세 조회", 
+                        responses={ 200 : '성공', 404:'찾을 수 없음', 500:'서버 에러'})
     def get(self, request, auction_id, comment_id):
         comment = get_object_or_404(Comment, auction_id=auction_id, id=comment_id)
         serializer = AuctionCommentSerializer(comment)
@@ -163,6 +190,8 @@ class CommentDetailView(APIView):
     
     
     #댓글 수정
+    @swagger_auto_schema(request_body=AuctionCommentCreateSerializer, operation_summary="댓글 수정", 
+                        responses={ 200 : '성공', 400:'인풋값 에러', 403:'접근 권한 없음', 404:'찾을 수 없음', 500:'서버 에러'})
     def put(self, request, auction_id, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
         if request.user == comment.user:
@@ -174,6 +203,8 @@ class CommentDetailView(APIView):
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
 
     # 댓글 삭제
+    @swagger_auto_schema(operation_summary="댓글 삭제", 
+                        responses={ 200 : '성공', 403:'접근 권한 없음', 404:'찾을 수 없음', 500:'서버 에러'})
     def delete(self, request, auction_id, comment_id):
         comment= get_object_or_404(Comment, id=comment_id)
         if request.user == comment.user:
