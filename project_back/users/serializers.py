@@ -10,7 +10,7 @@ from django.utils.encoding import smart_bytes, force_str
 import re
 
 from .models import User
-from auctions.serializers import AuctionListSerializer
+from auctions.serializers import AuctionListSerializer, AuctionListSerializer
 from .utils import Util
 
 class UserSerializer(serializers.ModelSerializer):
@@ -200,6 +200,7 @@ class SetNewPasswordSerializer(serializers.Serializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     like_auction = AuctionListSerializer(many=True)
+
     class Meta:
         model = User
         fields = ('email', 'nickname', 'profile_image', 'point','like_auction', )
