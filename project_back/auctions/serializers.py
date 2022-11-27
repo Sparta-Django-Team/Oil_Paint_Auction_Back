@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from django.utils import timezone
+
 from auctions.models import Auction, Comment, AuctionHistory
 from users.models import User
 from paintings.serializers import PaintingDetailSerializer
@@ -21,8 +23,21 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
                         'required':'날짜를 입력해주세요.',
                         'blank':'날짜를 입력해주세요.',}},
                         }
+        
+    
+    def validate(self, data):
+        start_bid = data.get('start_bid')
+        end_date = data.get('end_date')
+        
+        #시작 입찰가는 10000원 이상 가능
+        if start_bid >= 10000 :
+            raise serializers.ValidationError(detail={"start_bid": "시작 입찰가는 10000원 이상만 가능합니다."})
+        
+        #종료일은 현재시간 이후만 가능
+        if end_date > timezone.now():
+            raise serializers.ValidationError(detail={"end_date": "종료일은 현재시간 이후만 가능합니다."})
 
-
+        return data
 
 class AuctionListSerializer(serializers.ModelSerializer):
     auction_like = serializers.StringRelatedField(many=True)
