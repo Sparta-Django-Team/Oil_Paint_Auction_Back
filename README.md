@@ -75,23 +75,20 @@
 <hr>
 
 ## 🕸 ****와이어 프레임****
-<hr>
-![ex_screenshot](./readme_image/WIRE_FRAME.PNG)
+![ex_screenshot](./img/WIRE_FRAME.PNG)
 
 ## 🎯 ****데이터베이스****
-<hr>
-![ex_screenshot](./readme_image/ERD.PNG)
+![ex_screenshot](./img/ERD.PNG)
 
 ## 🎨 ****API 설계****
-<hr>
-![ex_screenshot](./readme_image/API1.PNG)
-![ex_screenshot](./readme_image/API2.PNG)
-![ex_screenshot](./readme_image/API3.PNG)
-![ex_screenshot](./readme_image/API4.PNG)
-![ex_screenshot](./readme_image/API5.PNG)
-![ex_screenshot](./readme_image/API6.PNG)
-![ex_screenshot](./readme_image/API7.PNG)
-![ex_screenshot](./readme_image/API8.PNG)
-![ex_screenshot](./readme_image/API9.PNG)
-![ex_screenshot](./readme_image/API10.PNG)
+![ex_screenshot](./img/API1.PNG)
+![ex_screenshot](./img/API2.PNG)
+![ex_screenshot](./img/API3.PNG)
+![ex_screenshot](./img/API4.PNG)
+![ex_screenshot](./img/API5.PNG)
+![ex_screenshot](./img/API6.PNG)
+![ex_screenshot](./img/API7.PNG)
+![ex_screenshot](./img/API8.PNG)
+![ex_screenshot](./img/API9.PNG)
+![ex_screenshot](./img/API10.PNG)
 
