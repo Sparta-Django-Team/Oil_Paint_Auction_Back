@@ -7,9 +7,7 @@ from users.models import User
 from paintings.models import Painting
 from paintings.serializers import PaintingDetailSerializer
 
-
-
-
+#경매 생성 serializer
 class AuctionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
@@ -24,15 +22,15 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
                         'required':'날짜를 입력해주세요.',
                         'blank':'날짜를 입력해주세요.',}},
                         }
-        
-    
+
+
     def validate(self, data):
         start_bid = data.get('start_bid')
         end_date = data.get('end_date')
         
         #시작 입찰가는 10000원 이상 가능
+
         if start_bid < 10000 :
-            print(start_bid)
             raise serializers.ValidationError(detail={"start_bid": "시작 입찰가는 10000원 이상만 가능합니다."})
         
         #종료일은 현재시간 이후만 가능
@@ -41,31 +39,47 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
 
         return data
 
+#경매 리스트 serializer
 class AuctionListSerializer(serializers.ModelSerializer):
-    auction_like = serializers.StringRelatedField(many=True)
     auction_like_count = serializers.SerializerMethodField()
     painting = PaintingDetailSerializer()
-
-    def get_auction_like_count(self, obj) :    
+    bidder = serializers.SerializerMethodField()
+    seller = serializers.SerializerMethodField()
+    
+    def get_auction_like_count(self, obj):    
         return obj.auction_like.count()
+    
+    def get_bidder(self, obj):
+        return obj.bidder.nickname
+    
+    def get_seller(self, obj):
+        return obj.seller.nickname
 
     class Meta:
         model = Auction
-        fields = "__all__"
+        fields = ('id', 'auction_like_count', 'painting', 'start_bid', 'now_bid', 'start_date', 'end_date', 'bidder', 'seller', )
 
+#경매 상세 serializer
 class AuctionDetailSerializer(serializers.ModelSerializer):
-    auction_like = serializers.StringRelatedField(many=True)
     auction_like_count = serializers.SerializerMethodField()
     painting = PaintingDetailSerializer()
-
-    def get_auction_like_count(self, obj) :    
+    bidder = serializers.SerializerMethodField()
+    seller = serializers.SerializerMethodField()
+    
+    def get_auction_like_count(self, obj):    
         return obj.auction_like.count()
+    
+    def get_bidder(self, obj):
+        return obj.bidder.nickname
+    
+    def get_seller(self, obj):
+        return obj.seller.nickname
 
     class Meta:
         model = Auction
-        fields = "__all__"
+        fields = ('id', 'auction_like_count', 'painting', 'start_bid', 'now_bid', 'start_date', 'end_date', 'bidder', 'seller', )
 
-
+#경매 입찰 serializer
 class AuctionBidSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -122,55 +136,62 @@ class AuctionBidSerializer(serializers.ModelSerializer):
         user.save()
 
         return data
-    
+
     def update(self, instance, validated_data):
         instance.now_bid = validated_data.get('now_bid', instance.now_bid)
         instance.bidder = validated_data.get('bidder', self.context.get("request").user) #현재 user가 bidder로 바뀜
 
         instance.save()
-        
+
         return instance
 
+#경매 거래내역 serializer
 class AuctionHistoySerializer(serializers.ModelSerializer):
     bidder = serializers.SerializerMethodField()
     auction= serializers.SerializerMethodField()
     bidder_profile_image = serializers.SerializerMethodField()
-    
+
     def get_bidder(self, obj):
         return obj.bidder.nickname
-    
+
     def get_auction(self, obj):
         return obj.auction.painting.title
-    
+
     def get_bidder_profile_image(self, obj):
         return obj.bidder.profile_image.url
-    
+
     class Meta:
         model = AuctionHistory
-        fields = "__all__"
+        fields = ('id', 'bidder', 'auction', 'bidder_profile_image', 'now_bid', 'created_at', )
 
+#경매 검색 serializer
 class AuctionSearchSerializer(serializers.ModelSerializer):
     paintings = AuctionDetailSerializer()
     
     class Meta:
         model = Painting
-        fields = "__all__"
+        fields = ('id', 'paintings', )
 
+#경매 댓글 serializer(상세, 리스트)
 class AuctionCommentSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     profile_image = serializers.SerializerMethodField()
-    auction = serializers.StringRelatedField()
+    auction = serializers.SerializerMethodField()
 
     def get_user(self, obj):
         return obj.user.nickname
 
     def get_profile_image(self, obj):
         return obj.user.profile_image.url
+    
+    def get_auction(self, obj):
+        return obj.auction.painting.title
 
     class Meta:
         model = Comment
-        fields = "__all__"
+        fields = ('id', 'user', 'profile_image', 'auction', 'content', 'created_at', 'updated_at', )
 
+#경매 댓글 생성 serializer
 class AuctionCommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment

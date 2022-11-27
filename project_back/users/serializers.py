@@ -13,6 +13,7 @@ from .models import User
 from auctions.serializers import AuctionListSerializer, AuctionListSerializer
 from .utils import Util
 
+#User serializer (회원가입, 회원수정)
 class UserSerializer(serializers.ModelSerializer):
     repassword= serializers.CharField(error_messages={'required':'비밀번호를 입력해주세요.', 'blank':'비밀번호를 입력해주세요.', 'write_only':True})    
     
@@ -90,6 +91,7 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+#비밀번호 변경 serializer
 class ChangePasswordSerializer(serializers.ModelSerializer):
     repassword= serializers.CharField(error_messages={'required':'비밀번호를 입력해주세요.', 'blank':'비밀번호를 입력해주세요.', 'write_only':True})    
     class Meta:
@@ -132,6 +134,8 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         instance.set_password(instance.password)
         instance.save()
         return instance
+
+#비밀번호 찾기 serializer
 class PasswordResetSerializer(serializers.Serializer):
     email= serializers.EmailField(error_messages={'required':'이메일을 입력해주세요.', 'blank':'이메일을 입력해주세요.', 'invalid': '알맞은 형식의 이메일을 입력해주세요.'})    
     
@@ -156,6 +160,7 @@ class PasswordResetSerializer(serializers.Serializer):
             return super().validate(attrs)
         raise serializers.ValidationError(detail={"email":"잘못된 이메일입니다. 다시 입력해주세요."})
 
+#비밀번호 재설정 serializer
 class SetNewPasswordSerializer(serializers.Serializer):
     password= serializers.CharField(error_messages={'required':'비밀번호를 입력해주세요.', 'blank':'비밀번호를 입력해주세요.', 'write_only':True}) 
     repassword= serializers.CharField(error_messages={'required':'비밀번호를 입력해주세요.', 'blank':'비밀번호를 입력해주세요.', 'write_only':True}) 
@@ -198,6 +203,7 @@ class SetNewPasswordSerializer(serializers.Serializer):
         
         return super().validate(attrs)
 
+#프로필 serializer
 class ProfileSerializer(serializers.ModelSerializer):
     like_auction = AuctionListSerializer(many=True)
 
@@ -205,6 +211,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'nickname', 'profile_image', 'point','like_auction', )
 
+#로그아웃 serializer
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 

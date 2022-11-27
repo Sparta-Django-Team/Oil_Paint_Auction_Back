@@ -10,7 +10,6 @@ from .models import User
 class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
-
     class Meta:
         model = User
         fields = ('email', 'nickname',)
@@ -29,14 +28,12 @@ class UserCreationForm(forms.ModelForm):
             user.save()
         return user
 
-
 class UserChangeForm(forms.ModelForm):
     password = ReadOnlyPasswordHashField()
 
     class Meta:
         model = User
         fields = ('email', 'password', 'nickname', 'profile_image', 'status', 'is_admin')
-
 
 class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
@@ -58,7 +55,6 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('email','nickname',)
     ordering = ('email',)
     filter_horizontal = ()
-
 
 admin.site.register(User, UserAdmin)
 admin.site.unregister(Group)
