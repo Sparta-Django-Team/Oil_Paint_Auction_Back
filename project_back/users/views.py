@@ -11,6 +11,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import DjangoUnicodeDecodeError, force_str
 
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from .jwt_claim_serializer import CustomTokenObtainPairSerializer
 from .serializers import (UserSerializer, ChangePasswordSerializer, 
@@ -42,7 +43,7 @@ class UserView(APIView):
     
     #회원정보 수정
     @swagger_auto_schema(request_body=UserSerializer, 
-                        operation_summary="회원정보 수정",  
+                        operation_summary="회원정보 수정", 
                         responses={ 200 : '성공',  400 :'인풋값 에러', 403:'접근 권한 에러', 404 : '찾을 수 없음', 500:'서버 에러'})
     
     def put(self, request):
