@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from auctions.models import Auction, Comment, AuctionHistory
 from users.models import User
+from paintings.models import Painting
 from paintings.serializers import PaintingDetailSerializer
 
 
@@ -148,6 +149,13 @@ class AuctionHistoySerializer(serializers.ModelSerializer):
         model = AuctionHistory
         fields = "__all__"
 
+class AuctionSearchSerializer(serializers.ModelSerializer):
+    paintings = AuctionDetailSerializer()
+    
+    class Meta:
+        model = Painting
+        fields = "__all__"
+
 class AuctionCommentSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     profile_image = serializers.SerializerMethodField()
@@ -171,4 +179,3 @@ class AuctionCommentCreateSerializer(serializers.ModelSerializer):
                         'error_messages': {
                         'required':'내용을 입력해주세요.',
                         'blank':'내용을 입력해주세요.',}},}
-
