@@ -68,7 +68,7 @@ class AuctionDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Auction
-        fields = ('id', 'auction_like_count', 'painting', 'start_bid', 'now_bid', 'start_date', 'end_date', 'bidder', 'seller', )
+        fields = ('id', 'auction_like_count', 'painting', 'start_bid', 'now_bid', 'start_date', 'end_date', 'bidder', 'seller', 'auction_like', )
 
 #경매 입찰 serializer
 class AuctionBidSerializer(serializers.ModelSerializer):
