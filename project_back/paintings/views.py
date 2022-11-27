@@ -94,7 +94,6 @@ class PaintingDetailView(APIView):
             serializer = PaintingCreateSerializer(painting, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save(owner=request.user, author=request.user, after_image=painting.after_image)
-                print(serializer.data)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
