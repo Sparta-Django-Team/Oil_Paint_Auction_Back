@@ -50,20 +50,17 @@ class AuctionCreateView(APIView):
                         responses={ 200 : '성공', 400:'인풋값 에러', 404:'찾을 수 없음', 500:'서버 에러'})
     def post(self, request, painting_id):
         painting = get_object_or_404(Painting, id=painting_id)
-        auction = get_object_or_404(Auction, painting=painting)
-        
+
         #존재하는 경매가 있으면 에러발생
-        if auction.exists():
+        if Auction.objects.filter(painting=painting).exists():
             return Response({"message":"이미 등록된 경매입니다."}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = AuctionCreateSerializer(data=request.data)
         if serializer.is_valid():
-            # try:
             serializer.save(painting_id=painting_id, seller=request.user)
             painting.is_auction = True
             painting.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-            # except IntegrityError as e:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AuctionDetailView(APIView):

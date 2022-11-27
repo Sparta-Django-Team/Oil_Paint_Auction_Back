@@ -7,6 +7,7 @@ from rest_framework.generics import get_object_or_404
 from django.shortcuts import get_list_or_404
 
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from paintings.models import Painting
 from paintings.serializers import (PaintingListSerializer, PaintingCreateSerializer, ImageSerializer, 
@@ -44,9 +45,11 @@ class ImageUploadView(APIView):
     def get(self, requets):
         style = [[x, y] for x, y in STYLE_CHOICES]
         return Response(style, status=status.HTTP_200_OK)
-
+    
+    before_image = openapi.Parameter('변환시킬 이미지', openapi.IN_QUERY, description="변환시킬 이미지를 넣어주세요.", type=openapi.TYPE_FILE)
+    style = openapi.Parameter('스타일', openapi.IN_QUERY, description="스타일을 넣어주세요.(1 ~ 9)", type=openapi.TYPE_INTEGER)
     #이미지 업로드(before -> after)
-    @swagger_auto_schema(request_body=ImageSerializer,
+    @swagger_auto_schema(manual_parameters=[before_image, style],
                         operation_summary="유화 이미지 업로드(before -> after)", 
                         responses={ 200 : '성공', 400:'인풋값 에러', 500:'서버 에러'})
     def post(self, request):

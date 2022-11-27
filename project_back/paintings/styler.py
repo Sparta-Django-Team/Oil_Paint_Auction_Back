@@ -13,7 +13,7 @@ django.setup()
 from .models import STYLE_CHOICES
 
 def painting_styler(img_url, style_id):
-    model = STYLE_CHOICES[int(style_id)][1]
+    model = STYLE_CHOICES[int(style_id)-1][1]
     net = cv2.dnn.readNetFromTorch(f'./paintings/models/{model}.t7')
     img = cv2.imread('./media/'+str(img_url))
 

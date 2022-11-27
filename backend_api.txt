@@ -1,0 +1,946 @@
+swagger: '2.0'
+info:
+  title: OIL PAINT API
+  description: 오완코 유화 프로젝트 API
+  termsOfService: https://www.ourapp.com/policies/terms/
+  contact:
+    email: contact@owanco.local
+  license:
+    name: Owanco License
+  version: v1
+host: 127.0.0.1:8000
+schemes:
+  - http
+basePath: /
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+security:
+  - Bearer: []
+paths:
+  /auctions/:
+    get:
+      operationId: auctions_list
+      summary: 경매 리스트
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    parameters: []
+  /auctions/detail/{auction_id}/:
+    get:
+      operationId: auctions_detail_read
+      summary: 경매 상세페이지
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 날짜 조건 안맞음
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    post:
+      operationId: auctions_detail_create
+      summary: 경매 낙찰
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    put:
+      operationId: auctions_detail_update
+      summary: 경매 입찰가 등록
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AuctionBid'
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    delete:
+      operationId: auctions_detail_delete
+      summary: 경매 삭제
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    parameters:
+      - name: auction_id
+        in: path
+        required: true
+        type: string
+  /auctions/{auction_id}/comments/:
+    get:
+      operationId: auctions_comments_list
+      summary: 댓글 전체 조회
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    post:
+      operationId: auctions_comments_create
+      summary: 댓글 생성
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AuctionCommentCreate'
+      responses:
+        '201':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    parameters:
+      - name: auction_id
+        in: path
+        required: true
+        type: string
+  /auctions/{auction_id}/comments/{comment_id}/:
+    get:
+      operationId: auctions_comments_read
+      summary: 댓글 상세 조회
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    put:
+      operationId: auctions_comments_update
+      summary: 댓글 수정
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AuctionCommentCreate'
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    delete:
+      operationId: auctions_comments_delete
+      summary: 댓글 삭제
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    parameters:
+      - name: auction_id
+        in: path
+        required: true
+        type: string
+      - name: comment_id
+        in: path
+        required: true
+        type: string
+  /auctions/{auction_id}/history/:
+    get:
+      operationId: auctions_history_list
+      summary: 경매 거래내역
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    parameters:
+      - name: auction_id
+        in: path
+        required: true
+        type: string
+  /auctions/{auction_id}/likes/:
+    post:
+      operationId: auctions_likes_create
+      summary: 경매 좋아요
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    parameters:
+      - name: auction_id
+        in: path
+        required: true
+        type: string
+  /auctions/{painting_id}/:
+    post:
+      operationId: auctions_create
+      summary: 경매 생성
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AuctionCreate'
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - auctions
+    parameters:
+      - name: painting_id
+        in: path
+        required: true
+        type: string
+  /paintings/:
+    get:
+      operationId: paintings_list
+      summary: 유화 리스트
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - paintings
+    parameters: []
+  /paintings/img/:
+    get:
+      operationId: paintings_img_list
+      summary: 유화 스타일 생성
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '500':
+          description: 서버 에러
+      tags:
+        - paintings
+    post:
+      operationId: paintings_img_create
+      summary: 유화 이미지 업로드(before -> after)
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Image'
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '500':
+          description: 서버 에러
+      tags:
+        - paintings
+    parameters: []
+  /paintings/img/{painting_id}/:
+    put:
+      operationId: paintings_img_update
+      summary: 이미지 스타일 적용된 유화 생성
+      description: ''
+      parameters:
+        - name: title
+          in: formData
+          required: false
+          type: string
+          maxLength: 20
+          x-nullable: true
+        - name: content
+          in: formData
+          required: false
+          type: string
+          maxLength: 200
+          x-nullable: true
+        - name: owner
+          in: formData
+          required: false
+          type: integer
+          x-nullable: true
+        - name: author
+          in: formData
+          required: false
+          type: integer
+          x-nullable: true
+        - name: after_image
+          in: formData
+          required: false
+          type: file
+      responses:
+        '201':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      consumes:
+        - multipart/form-data
+      tags:
+        - paintings
+    parameters:
+      - name: painting_id
+        in: path
+        required: true
+        type: string
+  /paintings/style/:
+    get:
+      operationId: paintings_style_list
+      summary: 유화 스타일 선택
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '500':
+          description: 서버 에러
+      tags:
+        - paintings
+    parameters: []
+  /paintings/{painting_id}/:
+    get:
+      operationId: paintings_read
+      summary: 유화 상세페이지
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - paintings
+    put:
+      operationId: paintings_update
+      summary: 유화 작품 수정
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/PaintingCreate'
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - paintings
+    delete:
+      operationId: paintings_delete
+      summary: 유화 작품 삭제
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - paintings
+    parameters:
+      - name: painting_id
+        in: path
+        required: true
+        type: string
+  /users/:
+    get:
+      operationId: users_list
+      summary: 개인 프로필
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      consumes:
+        - multipart/form-data
+      tags:
+        - users
+    post:
+      operationId: users_create
+      summary: 회원가입
+      description: ''
+      parameters:
+        - name: email
+          in: formData
+          required: true
+          type: string
+          format: email
+          maxLength: 100
+          minLength: 1
+        - name: nickname
+          in: formData
+          required: true
+          type: string
+          maxLength: 10
+          minLength: 1
+        - name: password
+          in: formData
+          required: true
+          type: string
+          maxLength: 128
+          minLength: 1
+        - name: repassword
+          in: formData
+          required: true
+          type: string
+          minLength: 1
+        - name: profile_image
+          in: formData
+          required: false
+          type: file
+        - name: term_check
+          in: formData
+          required: false
+          type: boolean
+          x-nullable: true
+      responses:
+        '201':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '500':
+          description: 서버 에러
+      consumes:
+        - multipart/form-data
+      tags:
+        - users
+    put:
+      operationId: users_update
+      summary: 회원정보 수정
+      description: ''
+      parameters:
+        - name: email
+          in: formData
+          required: true
+          type: string
+          format: email
+          maxLength: 100
+          minLength: 1
+        - name: nickname
+          in: formData
+          required: true
+          type: string
+          maxLength: 10
+          minLength: 1
+        - name: password
+          in: formData
+          required: true
+          type: string
+          maxLength: 128
+          minLength: 1
+        - name: repassword
+          in: formData
+          required: true
+          type: string
+          minLength: 1
+        - name: profile_image
+          in: formData
+          required: false
+          type: file
+        - name: term_check
+          in: formData
+          required: false
+          type: boolean
+          x-nullable: true
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '403':
+          description: 접근 권한 에러
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      consumes:
+        - multipart/form-data
+      tags:
+        - users
+    delete:
+      operationId: users_delete
+      summary: 계정 비활성화
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '403':
+          description: 접근 권한 에러
+        '500':
+          description: 서버에러
+      consumes:
+        - multipart/form-data
+      tags:
+        - users
+    parameters: []
+  /users/api/token/:
+    post:
+      operationId: users_api_token_create
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/CustomTokenObtainPair'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/CustomTokenObtainPair'
+      tags:
+        - users
+    parameters: []
+  /users/api/token/refresh/:
+    post:
+      operationId: users_api_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TokenRefresh'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/TokenRefresh'
+      tags:
+        - users
+    parameters: []
+  /users/changepassword/:
+    post:
+      operationId: users_changepassword_create
+      summary: 비밀번호 인증
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ChangePassword'
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - users
+    put:
+      operationId: users_changepassword_update
+      summary: 비밀번호 변경
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ChangePassword'
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - users
+    parameters: []
+  /users/logout/:
+    post:
+      operationId: users_logout_create
+      summary: 로그아웃
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Logout'
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 토큰 유효하지 않음
+        '500':
+          description: 서버 에러
+      tags:
+        - users
+    parameters: []
+  /users/password-reset-complete/:
+    put:
+      operationId: users_password-reset-complete_update
+      summary: 비밀번호 재설정
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SetNewPassword'
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '500':
+          description: 서버 에러
+      tags:
+        - users
+    parameters: []
+  /users/password-reset-email/:
+    post:
+      operationId: users_password-reset-email_create
+      summary: 비밀번호 찾기
+      description: ''
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/PasswordReset'
+      responses:
+        '200':
+          description: 성공
+        '400':
+          description: 인풋값 에러
+        '500':
+          description: 서버 에러
+      tags:
+        - users
+    parameters: []
+  /users/password-reset/{uidb64}/{token}/:
+    get:
+      operationId: users_password-reset_read
+      summary: 비밀번호 재설정 토큰 확인
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: 성공
+        '401':
+          description: 링크 유효하지 않음
+        '404':
+          description: 찾을 수 없음
+        '500':
+          description: 서버 에러
+      tags:
+        - users
+    parameters:
+      - name: token
+        in: path
+        required: true
+        type: string
+      - name: uidb64
+        in: path
+        required: true
+        type: string
+definitions:
+  AuctionBid:
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      start_bid:
+        title: 시작 입찰가
+        type: integer
+      now_bid:
+        title: 현재 입찰가
+        type: integer
+        x-nullable: true
+      bidder:
+        title: 입찰자
+        type: integer
+        x-nullable: true
+  AuctionCommentCreate:
+    required:
+      - content
+    type: object
+    properties:
+      content:
+        title: 내용
+        type: string
+        maxLength: 100
+        minLength: 1
+  AuctionCreate:
+    type: object
+    properties:
+      start_bid:
+        title: 시작 입찰가
+        type: integer
+      end_date:
+        title: 경매 마감
+        type: string
+        format: date-time
+        x-nullable: true
+  Image:
+    required:
+      - style
+    type: object
+    properties:
+      id:
+        title: ID
+        type: integer
+        readOnly: true
+      style:
+        title: 스타일
+        type: string
+        enum:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+      before_image:
+        title: 변환 전 사진
+        type: string
+        readOnly: true
+        format: uri
+  PaintingCreate:
+    type: object
+    properties:
+      title:
+        title: 제목
+        type: string
+        maxLength: 20
+        x-nullable: true
+      content:
+        title: 내용
+        type: string
+        maxLength: 200
+        x-nullable: true
+      owner:
+        title: 소유자
+        type: integer
+        x-nullable: true
+      author:
+        title: 원작자
+        type: integer
+        x-nullable: true
+      after_image:
+        title: 변환 후 사진
+        type: string
+        readOnly: true
+        format: uri
+  CustomTokenObtainPair:
+    required:
+      - email
+      - password
+    type: object
+    properties:
+      email:
+        title: Email
+        type: string
+        minLength: 1
+      password:
+        title: Password
+        type: string
+        minLength: 1
+  TokenRefresh:
+    required:
+      - refresh
+    type: object
+    properties:
+      refresh:
+        title: Refresh
+        type: string
+        minLength: 1
+      access:
+        title: Access
+        type: string
+        readOnly: true
+        minLength: 1
+  ChangePassword:
+    required:
+      - password
+      - repassword
+    type: object
+    properties:
+      password:
+        title: 비밀번호
+        type: string
+        maxLength: 128
+        minLength: 1
+      repassword:
+        title: Repassword
+        type: string
+        minLength: 1
+  Logout:
+    required:
+      - refresh
+    type: object
+    properties:
+      refresh:
+        title: Refresh
+        type: string
+        minLength: 1
+  SetNewPassword:
+    required:
+      - password
+      - repassword
+      - token
+      - uidb64
+    type: object
+    properties:
+      password:
+        title: Password
+        type: string
+        minLength: 1
+      repassword:
+        title: Repassword
+        type: string
+        minLength: 1
+      token:
+        title: Token
+        type: string
+        maxLength: 100
+        minLength: 1
+      uidb64:
+        title: Uidb64
+        type: string
+        maxLength: 100
+        minLength: 1
+  PasswordReset:
+    required:
+      - email
+    type: object
+    properties:
+      email:
+        title: Email
+        type: string
+        format: email
+        minLength: 1
