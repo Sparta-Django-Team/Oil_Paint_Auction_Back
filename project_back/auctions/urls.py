@@ -10,6 +10,7 @@ urlpatterns = [
     path('detail/<int:auction_id>/',views.AuctionDetailView.as_view(), name='auction_detail_view'),    
     path('<int:auction_id>/likes/',views.AuctionLikeView.as_view(), name="auction_like_view"),
     path('<int:auction_id>/history/', views.AuctionHistoryView.as_view(), name="auction_history_view"),
+    path('search/',views.AuctionSearchView.as_view(),name='auction_search_view'),
 
     # Auction Comment
     path('<int:auction_id>/comments/', views.CommentView.as_view(), name="comment_view"),
