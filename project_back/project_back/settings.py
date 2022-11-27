@@ -28,9 +28,9 @@ SECRET_KEY = get_secret("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', '0') == '1'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['backend']
 
 
 # Application definition
@@ -102,12 +102,28 @@ WSGI_APPLICATION = 'project_back.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+POSTGRES_DB = os.environ.get('POSTGRES_DB', '')
+if POSTGRES_DB:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': POSTGRES_DB,
+            'USER': os.environ.get('POSTGRES_USER', ''),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
+            'HOST': os.environ.get('POSTGRES_HOST', ''),
+            'PORT': os.environ.get('POSTGRES_PORT', ''),
+        }
     }
-}
+
+# 환경변수가 존재하지 않을 경우 sqlite3을 사용합니다.
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
 
 
 # Password validation
@@ -145,6 +161,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "static"
 MEDIA_URL='/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -190,7 +207,10 @@ SIMPLE_JWT = {
 }
 
 #CORS settings
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_WHITELIST = ['http://52.78.154.186']
+
+# CSRF 허용 목록을 CORS와 동일하게 설정합니다.
+CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
 
 #EMAIL settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
