@@ -37,7 +37,7 @@ class PaintingStyleSelectView(APIView):
 
 class ImageUploadView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     #유화 스타일 생성 페이지
     @swagger_auto_schema(operation_summary="유화 스타일 생성", 
                         responses={ 200 : '성공', 500:'서버 에러'})

@@ -21,7 +21,7 @@ from users.models import User
 #####경매#####
 class AuctionListView(APIView):
     permissions_classes = [AllowAny] 
-    
+
     #경매 리스트
     @swagger_auto_schema(operation_summary="전체 경매 리스트", 
                         responses={ 200 : '성공', 500:'서버 에러'})
@@ -32,7 +32,7 @@ class AuctionListView(APIView):
     
 class AuctionMyListView(APIView):
     permissions_classes = [IsAuthenticated] 
-    
+
     #나의 경매 리스트
     @swagger_auto_schema(operation_summary="나의 경매 리스트", 
                         responses={ 200 : '성공', 404 : '찾을 수 없음', 500:'서버 에러'})
@@ -43,7 +43,7 @@ class AuctionMyListView(APIView):
 
 class AuctionCreateView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     # 경매 생성
     @swagger_auto_schema(request_body=AuctionCreateSerializer, 
                         operation_summary="경매 생성", 
@@ -139,7 +139,7 @@ class AuctionDetailView(APIView):
                 return Response(serializer.data , status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN) 
-    
+
     # 경매 삭제
     @swagger_auto_schema(operation_summary="경매 삭제", 
                         responses={ 200 : '성공', 403:'접근 권한 없음', 404:'찾을 수 없음', 500:'서버 에러'})
@@ -153,7 +153,7 @@ class AuctionDetailView(APIView):
 # 경매 좋아요
 class AuctionLikeView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     @swagger_auto_schema(operation_summary="경매 좋아요", 
                         responses={ 200 : '성공', 404:'찾을 수 없음', 500:'서버 에러'})
     def post(self, request, auction_id):
@@ -167,7 +167,7 @@ class AuctionLikeView(APIView):
 
 class AuctionSearchView(APIView):
     permission_classes = [AllowAny]
-    
+
     #경매 검색
     @swagger_auto_schema(operation_summary="경매 검색", 
                         responses={ 200 : '성공', 500:'서버 에러'})
@@ -184,7 +184,7 @@ class AuctionSearchView(APIView):
 
 class AuctionHistoryView(APIView):
     permission_classes = [AllowAny]
-    
+
     # 경매 거래내역 표시
     @swagger_auto_schema(operation_summary="경매 거래내역", 
                         responses={ 200 : '성공', 500:'서버 에러'})
@@ -192,7 +192,6 @@ class AuctionHistoryView(APIView):
         auction_history = AuctionHistory.objects.filter(auction=auction_id).order_by('-created_at')
         serializer = AuctionHistoySerializer(auction_history, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 #####댓글#####
 class CommentView(APIView):
@@ -227,7 +226,6 @@ class CommentDetailView(APIView):
         comment = get_object_or_404(Comment, auction_id=auction_id, id=comment_id)
         serializer = AuctionCommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
     
     #댓글 수정
     @swagger_auto_schema(request_body=AuctionCommentCreateSerializer, operation_summary="댓글 수정", 
