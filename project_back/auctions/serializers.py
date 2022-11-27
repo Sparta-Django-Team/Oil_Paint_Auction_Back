@@ -23,7 +23,6 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
                         'blank':'날짜를 입력해주세요.',}},
                         }
 
-
     def validate(self, data):
         start_bid = data.get('start_bid')
         end_date = data.get('end_date')

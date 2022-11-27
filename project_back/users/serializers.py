@@ -16,7 +16,7 @@ from .utils import Util
 #User serializer (회원가입, 회원수정)
 class UserSerializer(serializers.ModelSerializer):
     repassword= serializers.CharField(error_messages={'required':'비밀번호를 입력해주세요.', 'blank':'비밀번호를 입력해주세요.', 'write_only':True})    
-    
+
     class Meta:
         model = User
         fields = ('email', 'nickname', 'password', 'repassword','profile_image', 'term_check',)

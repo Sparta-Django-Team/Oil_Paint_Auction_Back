@@ -194,7 +194,7 @@ class AuctionHistoryView(APIView):
 class CommentView(APIView):
     permission_classes = [IsAuthenticated]
 
-    # 댓글 조회
+    # 댓글 전체 조회
     @swagger_auto_schema(operation_summary="댓글 전체 조회", 
                         responses={ 200 : '성공', 404:'찾을 수 없음', 500:'서버 에러'})
     def get(self, request, auction_id):

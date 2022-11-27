@@ -7,7 +7,6 @@ from rest_framework.generics import get_object_or_404
 from django.shortcuts import get_list_or_404
 
 from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 
 from paintings.models import Painting
 from paintings.serializers import (PaintingListSerializer, PaintingCreateSerializer, ImageSerializer, 
@@ -46,7 +45,6 @@ class ImageUploadView(APIView):
         style = [[x, y] for x, y in STYLE_CHOICES]
         return Response(style, status=status.HTTP_200_OK)
     
-
     #이미지 업로드(before -> after)
     @swagger_auto_schema(request_body=ImageSerializer, 
                         operation_summary="유화 이미지 업로드(before -> after)", 

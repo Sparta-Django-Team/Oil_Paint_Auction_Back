@@ -11,7 +11,6 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import DjangoUnicodeDecodeError, force_str
 
 from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 
 from .jwt_claim_serializer import CustomTokenObtainPairSerializer
 from .serializers import (UserSerializer, ChangePasswordSerializer, 
