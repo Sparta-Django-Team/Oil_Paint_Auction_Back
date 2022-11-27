@@ -25,10 +25,27 @@ class AuctionListView(APIView):
     #경매 리스트
     @swagger_auto_schema(operation_summary="전체 경매 리스트", 
                         responses={ 200 : '성공', 500:'서버 에러'})
-    def get(self, request):        
-        auction = Auction.objects.all()        
-        serializer = AuctionListSerializer(auction, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request): 
+        
+        #모든 경매 가져오기
+        auction = Auction.objects.all()
+        
+        #마감되지 않은 경매 가져오기
+        open_auctions = Auction.objects.filter(Q(end_date__gt=timezone.now()))
+        
+        #마감임박 경매 가져오기
+        closing_auction= open_auctions.filter(Q(end_date__lt=timezone.now()+timezone.timedelta(days=1))).order_by('end_date')
+        
+        open_auctions_serializer = AuctionListSerializer(open_auctions, many=True).data
+        closing_auction_serializer = AuctionListSerializer(closing_auction, many=True).data
+        auction_serializer = AuctionListSerializer(auction, many=True).data
+        
+        auction = {
+            "open_auctions": open_auctions_serializer, 
+            "closing_auction": closing_auction_serializer,
+            "auction" : auction_serializer 
+        }     
+        return Response(auction, status=status.HTTP_200_OK)
     
 class AuctionMyListView(APIView):
     permissions_classes = [IsAuthenticated] 
