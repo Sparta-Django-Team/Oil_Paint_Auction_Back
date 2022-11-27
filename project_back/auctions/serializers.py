@@ -42,14 +42,10 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
 class AuctionListSerializer(serializers.ModelSerializer):
     auction_like_count = serializers.SerializerMethodField()
     painting = PaintingDetailSerializer()
-    bidder = serializers.SerializerMethodField()
     seller = serializers.SerializerMethodField()
     
     def get_auction_like_count(self, obj):    
         return obj.auction_like.count()
-    
-    def get_bidder(self, obj):
-        return obj.bidder.nickname
     
     def get_seller(self, obj):
         return obj.seller.nickname
@@ -62,14 +58,10 @@ class AuctionListSerializer(serializers.ModelSerializer):
 class AuctionDetailSerializer(serializers.ModelSerializer):
     auction_like_count = serializers.SerializerMethodField()
     painting = PaintingDetailSerializer()
-    bidder = serializers.SerializerMethodField()
     seller = serializers.SerializerMethodField()
     
     def get_auction_like_count(self, obj):    
         return obj.auction_like.count()
-    
-    def get_bidder(self, obj):
-        return obj.bidder.nickname
     
     def get_seller(self, obj):
         return obj.seller.nickname
