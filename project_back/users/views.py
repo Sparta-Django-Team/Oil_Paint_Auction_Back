@@ -11,6 +11,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import DjangoUnicodeDecodeError, force_str
 
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from .jwt_claim_serializer import CustomTokenObtainPairSerializer
 from .serializers import (UserSerializer, ChangePasswordSerializer, 
@@ -40,9 +41,13 @@ class UserView(APIView):
             return Response({"message":"회원가입 성공"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    
+    profile_image = openapi.Parameter('프로필 이미지', openapi.IN_QUERY, description="프로필 이미지을 넣어주세요.", type=openapi.TYPE_FILE)
+    nickname = openapi.Parameter('닉네임', openapi.IN_QUERY, description="닉네임을 넣어주세요.", type=openapi.TYPE_STRING)
     #회원정보 수정
-    @swagger_auto_schema(request_body=UserSerializer, 
+    @swagger_auto_schema(
                         operation_summary="회원정보 수정",  
+                        manual_parameters=[profile_image, nickname],
                         responses={ 200 : '성공',  400 :'인풋값 에러', 403:'접근 권한 에러', 404 : '찾을 수 없음', 500:'서버 에러'})
     
     def put(self, request):
