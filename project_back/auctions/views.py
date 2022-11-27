@@ -65,11 +65,14 @@ class AuctionDetailView(APIView):
 
     # 경매 낙찰
     @swagger_auto_schema(operation_summary="경매 낙찰", 
-                        responses={ 200 : '성공', 403:'접근 권한 없음', 404:'찾을 수 없음', 500:'서버 에러'})
+                        responses={ 200 : '성공', 400:'조건 에러', 403:'접근 권한 없음', 404:'찾을 수 없음', 500:'서버 에러'})
     def post(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
 
         if request.user == auction.painting.owner:
+            #낙찰이 되기전 입찰한 사람이 없으면 낙찰 불가능 
+            if not auction.bidder:            
+                return Response({"message":"입찰한 사람이 없음"}, status=status.HTTP_400_BAD_REQUEST) 
 
             #낙찰이 되면
             auction.painting.is_auction = False
@@ -88,7 +91,7 @@ class AuctionDetailView(APIView):
 
                 user.save()
             
-            #경매에 올린 소유주는 그 포인트만큼 줌, , 소유주 변경
+            #경매에 올린 소유주는 그 포인트만큼 줌, 소유주/판매자 변경
             last_bid = auction.now_bid
             before_owner =  User.objects.get(email=auction.painting.owner)
 
@@ -98,7 +101,9 @@ class AuctionDetailView(APIView):
             after_owner = auction.bidder
             painting = Painting.objects.get(id=auction.painting.id)
             painting.owner = after_owner # 소유주 변경 
+            auction.seller = after_owner # 판매자 변경
             
+            auction.save()
             painting.save()
             
             return Response({"message":"낙찰 완료"}, status=status.HTTP_200_OK) 
