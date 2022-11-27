@@ -12,7 +12,7 @@ from paintings.serializers import PaintingDetailSerializer
 class AuctionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
-        fields = ('start_bid', 'end_date',)
+        fields = ('start_bid', 'end_date','now_bid', )
         extra_kwargs = {'start_bid':{
                         'error_messages': {
                         'required':'입찰가를 입력해주세요.',
@@ -30,11 +30,12 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
         end_date = data.get('end_date')
         
         #시작 입찰가는 10000원 이상 가능
-        if start_bid >= 10000 :
+        if start_bid < 10000 :
+            print(start_bid)
             raise serializers.ValidationError(detail={"start_bid": "시작 입찰가는 10000원 이상만 가능합니다."})
         
         #종료일은 현재시간 이후만 가능
-        if end_date > timezone.now():
+        if end_date < timezone.now():
             raise serializers.ValidationError(detail={"end_date": "종료일은 현재시간 이후만 가능합니다."})
 
         return data
