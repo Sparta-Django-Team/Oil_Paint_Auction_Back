@@ -5,13 +5,14 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.utils import timezone
-from django.db import IntegrityError
+from django.db.models import Q
 from django.shortcuts import get_list_or_404
 
 from drf_yasg.utils import swagger_auto_schema
 
 from .serializers import (AuctionCreateSerializer, AuctionListSerializer, AuctionDetailSerializer, 
-                        AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer, AuctionHistoySerializer)
+                        AuctionCommentSerializer, AuctionCommentCreateSerializer, AuctionBidSerializer, 
+                        AuctionSearchSerializer, AuctionHistoySerializer)
 from .models import Auction, Comment, AuctionHistory
 from paintings.models import Painting
 from users.models import User
@@ -162,6 +163,25 @@ class AuctionLikeView(APIView):
         else:
             auction.auction_like.add(request.user)
             return Response({"message":"좋아요 되었습니다."}, status=status.HTTP_200_OK)
+
+class AuctionSearchView(APIView):
+    permission_classes = [AllowAny]
+    
+    #경매 검색
+    @swagger_auto_schema(operation_summary="경매 검색", 
+                        responses={ 200 : '성공', 500:'서버 에러'})
+    def get(self, request):
+        search = request.GET.get('search')
+        print(search)
+        if search:
+            auction_result = Painting.objects.filter(
+            Q(title__icontains=search) |
+            Q(content__icontains=search) 
+            , is_auction =True
+            )
+            print(auction_result)
+        serializer = AuctionSearchSerializer(auction_result, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class AuctionHistoryView(APIView):
     permission_classes = [AllowAny]
