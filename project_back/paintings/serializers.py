@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Painting
 from .styler import painting_styler
 
+#이미지 스타일러 serializer
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Painting
@@ -20,6 +21,7 @@ class ImageSerializer(serializers.ModelSerializer):
         
         return painting
 
+#유화 생성 serializer
 class PaintingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Painting
@@ -46,6 +48,7 @@ class PaintingCreateSerializer(serializers.ModelSerializer):
 
         return instance
 
+#유화 상세 serializer
 class PaintingDetailSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     owner = serializers.SerializerMethodField()
@@ -67,10 +70,12 @@ class PaintingDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Painting
         fields = ('id', 'title', 'content', 'author', 'owner', 'after_image', 'created_at', 'updated_at', 'is_auction','owner_profile_image','author_profile_image', )
-        
+
+#유화 리스트 serializer
 class PaintingListSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     owner = serializers.SerializerMethodField()
+    
     def get_author(self, obj):
         return obj.author.nickname
 
@@ -79,5 +84,6 @@ class PaintingListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Painting
-        fields = "__all__"
+        fields = ('id', 'author', 'owner', 'title', 'content', 'after_image', 'created_at', 'updated_at', 'style','is_auction', )
+
 

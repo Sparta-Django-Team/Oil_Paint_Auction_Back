@@ -70,7 +70,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         except:
             pass
         
-        
         #회원 상태 에러 발생
         if User.objects.filter(email=email).exists():
             
@@ -103,7 +102,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             self.target_user.today_point = True
             self.target_user.point = F("point")+1000
             self.target_user.save()
-        
+
         return {"access":attrs["access"], "refresh":attrs["refresh"]}
 
     @classmethod
