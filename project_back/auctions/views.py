@@ -173,14 +173,12 @@ class AuctionSearchView(APIView):
                         responses={ 200 : '성공', 500:'서버 에러'})
     def get(self, request):
         search = request.GET.get('search')
-        print(search)
         if search:
             auction_result = Painting.objects.filter(
             Q(title__icontains=search) |
             Q(content__icontains=search) 
             , is_auction =True
             )
-            print(auction_result)
         serializer = AuctionSearchSerializer(auction_result, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
