@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
+from rest_framework.parsers import MultiPartParser
 
 from django.shortcuts import get_list_or_404
 
@@ -37,6 +38,7 @@ class PaintingStyleSelectView(APIView):
 
 class ImageUploadView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser,]
 
     #유화 스타일 생성 페이지
     @swagger_auto_schema(operation_summary="유화 스타일 생성", 
@@ -107,4 +109,3 @@ class PaintingDetailView(APIView):
             painting.delete()
             return Response({"message":"유화 삭제"}, status=status.HTTP_200_OK)
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN)
-

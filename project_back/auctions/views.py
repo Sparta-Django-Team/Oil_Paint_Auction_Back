@@ -27,22 +27,22 @@ class AuctionListView(APIView):
                         responses={ 200 : '성공', 500:'서버 에러'})
     def get(self, request): 
         
-        #모든 경매 가져오기
-        auction = Auction.objects.all()
+        #모든 경매 가져오기(회원 활성화 일 때 가져옴)
+        auction = Auction.objects.filter(painting__owner__status__in=["N", "S"])
         
-        #마감되지 않은 경매 가져오기
-        open_auctions = Auction.objects.filter(Q(end_date__gt=timezone.now())).exclude(seller__isnull=True)
-        
-        #마감임박 경매 가져오기
-        closing_auction= open_auctions.filter(Q(end_date__lt=timezone.now()+timezone.timedelta(days=1))).order_by('end_date')
+        #마감되지 않은 경매 가져오기(회원 활성화 일 때 가져옴)
+        open_auctions = Auction.objects.filter(Q(end_date__gt=timezone.now()), painting__owner__status__in=["N", "S"] ).exclude(seller__isnull=True)
+
+        #마감임박 경매 가져오기(회원 활성화 일 때 가져옴)
+        closing_auctions = open_auctions.filter(Q(end_date__lt=timezone.now()+timezone.timedelta(days=1))).order_by('end_date')
         
         open_auctions_serializer = AuctionListSerializer(open_auctions, many=True).data
-        closing_auction_serializer = AuctionListSerializer(closing_auction, many=True).data
+        closing_auction_serializer = AuctionListSerializer(closing_auctions, many=True).data
         auction_serializer = AuctionListSerializer(auction, many=True).data
         
         auction = {
             "open_auctions": open_auctions_serializer, 
-            "closing_auction": closing_auction_serializer,
+            "closing_auctions": closing_auction_serializer,
             "auction" : auction_serializer 
         }     
         return Response(auction, status=status.HTTP_200_OK)
@@ -133,7 +133,7 @@ class AuctionDetailView(APIView):
     @swagger_auto_schema(operation_summary="경매 상세페이지", 
                         responses={ 200 : '성공', 404:'찾을 수 없음', 500:'서버 에러'})
     def get(self, request, auction_id):
-        auction = get_object_or_404(Auction, id=auction_id)
+        auction = get_object_or_404(Auction, id=auction_id, painting__owner__status__in=["N", "S"])
         serializer = AuctionDetailSerializer(auction)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -188,7 +188,7 @@ class AuctionSearchView(APIView):
             auction_result = Painting.objects.filter(
             Q(title__icontains=search) |
             Q(content__icontains=search) 
-            , is_auction =True
+            , is_auction =True, painting__owner__status__in=["N", "S"]
             )
         serializer = AuctionSearchSerializer(auction_result, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -212,7 +212,7 @@ class CommentView(APIView):
     @swagger_auto_schema(operation_summary="댓글 전체 조회", 
                         responses={ 200 : '성공', 404:'찾을 수 없음', 500:'서버 에러'})
     def get(self, request, auction_id):
-        auction = get_object_or_404(Auction, id=auction_id)
+        auction = get_object_or_404(Auction, id=auction_id, painting__owner__status__in=["N", "S"])
         comments = auction.comment.all()
         serializer = AuctionCommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -234,7 +234,8 @@ class CommentDetailView(APIView):
     @swagger_auto_schema(operation_summary="댓글 상세 조회", 
                         responses={ 200 : '성공', 404:'찾을 수 없음', 500:'서버 에러'})
     def get(self, request, auction_id, comment_id):
-        comment = get_object_or_404(Comment, auction_id=auction_id, id=comment_id)
+        auction = get_object_or_404(Auction, id=auction_id, painting__owner__status__in=["N", "S"])
+        comment = get_object_or_404(Comment, auction_id=auction, id=comment_id)
         serializer = AuctionCommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
