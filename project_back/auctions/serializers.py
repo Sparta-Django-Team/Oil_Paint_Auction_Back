@@ -42,13 +42,9 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
 class AuctionListSerializer(serializers.ModelSerializer):
     auction_like_count = serializers.SerializerMethodField()
     painting = PaintingDetailSerializer()
-    seller = serializers.SerializerMethodField()
     
     def get_auction_like_count(self, obj):    
         return obj.auction_like.count()
-    
-    def get_seller(self, obj):
-        return obj.seller.nickname
 
     class Meta:
         model = Auction
@@ -58,13 +54,9 @@ class AuctionListSerializer(serializers.ModelSerializer):
 class AuctionDetailSerializer(serializers.ModelSerializer):
     auction_like_count = serializers.SerializerMethodField()
     painting = PaintingDetailSerializer()
-    seller = serializers.SerializerMethodField()
     
     def get_auction_like_count(self, obj):    
         return obj.auction_like.count()
-    
-    def get_seller(self, obj):
-        return obj.seller.nickname
 
     class Meta:
         model = Auction
@@ -87,6 +79,10 @@ class AuctionBidSerializer(serializers.ModelSerializer):
         enter_bid = data["now_bid"]                 # user가 front에 작성한 입찰가
         bidder = self.instance.bidder               # 최고 입찰가의 입찰자     
 
+        #낙찰이 되었는지 확인
+        if auction.seller == None:
+            raise serializers.ValidationError(detail={"error": "이미 종료된 경매입니다."})
+        
         # 소유자는 입찰 못하게함
         if request_user == auction.painting.owner:
             raise serializers.ValidationError(detail={"error": "소유자는 입찰 할 수 없습니다."})

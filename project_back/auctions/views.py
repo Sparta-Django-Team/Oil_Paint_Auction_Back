@@ -31,7 +31,7 @@ class AuctionListView(APIView):
         auction = Auction.objects.all()
         
         #마감되지 않은 경매 가져오기
-        open_auctions = Auction.objects.filter(Q(end_date__gt=timezone.now()))
+        open_auctions = Auction.objects.filter(Q(end_date__gt=timezone.now())).exclude(seller__isnull=True)
         
         #마감임박 경매 가져오기
         closing_auction= open_auctions.filter(Q(end_date__lt=timezone.now()+timezone.timedelta(days=1))).order_by('end_date')
@@ -69,7 +69,7 @@ class AuctionCreateView(APIView):
         painting = get_object_or_404(Painting, id=painting_id)
 
         #존재하는 경매가 있으면 에러발생
-        if Auction.objects.filter(painting=painting).exists():
+        if Auction.objects.filter(painting=painting, seller=request.user.id).exists():
             return Response({"message":"이미 등록된 경매입니다."}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = AuctionCreateSerializer(data=request.data)
@@ -121,24 +121,21 @@ class AuctionDetailView(APIView):
             after_owner = auction.bidder
             painting = Painting.objects.get(id=auction.painting.id)
             painting.owner = after_owner # 소유주 변경 
-            auction.seller = after_owner # 판매자 변경
+            auction.seller = None # 판매자 null 값
             
             auction.save()
             painting.save()
-            
+
             return Response({"message":"낙찰 완료"}, status=status.HTTP_200_OK) 
         return Response({"message":"접근 권한 없음"}, status=status.HTTP_403_FORBIDDEN) 
 
     # 경매 상세페이지
     @swagger_auto_schema(operation_summary="경매 상세페이지", 
-                        responses={ 200 : '성공', 400:'날짜 조건 안맞음', 404:'찾을 수 없음', 500:'서버 에러'})
+                        responses={ 200 : '성공', 404:'찾을 수 없음', 500:'서버 에러'})
     def get(self, request, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
-        # 마감 날짜 확인
-        if auction.end_date > timezone.now():
-            serializer = AuctionDetailSerializer(auction)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"message":"경매가 마감되었습니다."}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = AuctionDetailSerializer(auction)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     # 경매 현재 입찰가 등록 & 포인트 처리
     @swagger_auto_schema(request_body=AuctionBidSerializer, 
