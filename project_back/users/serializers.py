@@ -10,7 +10,7 @@ from django.utils.encoding import smart_bytes, force_str
 import re
 
 from .models import User
-from auctions.serializers import AuctionListSerializer, AuctionListSerializer
+from auctions.serializers import AuctionListSerializer
 from .utils import Util
 
 #User serializer (회원가입, 회원수정)
