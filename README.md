@@ -83,7 +83,7 @@
 ## 🎨 ****API 설계****
 ![ex_screenshot](./img/API1.PNG)
 ![ex_screenshot](./img/API2.PNG)
-![ex_screenshot](./img/API3.PNG)
+![ex_screenshot](./img/API12.PNG)
 ![ex_screenshot](./img/API4.PNG)
 ![ex_screenshot](./img/API5.PNG)
 ![ex_screenshot](./img/API6.PNG)
