@@ -1,5 +1,5 @@
 # B7팀(오코완)_유화제작 프로젝트
-## [notion](https://bolder-starburst-a73.notion.site/347c2ac124ad442fa5f2f8028a783d1a)
+## [노션 진행 상황](https://bolder-starburst-a73.notion.site/347c2ac124ad442fa5f2f8028a783d1a)
 <hr>
 
 ## [Front-end Page](https://github.com/1TEAM12/Oil_Paint_Auction_Front)
