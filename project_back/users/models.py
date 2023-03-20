@@ -1,5 +1,6 @@
 # time
-import time 
+import time
+import logging
 
 # django
 from django.db import models
@@ -7,6 +8,13 @@ from django.db import transaction, DatabaseError
 from django.db.models import F
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
+# project
+from project_back.exceptions import AttendanceCheckException
+
+logger = logging.getLogger(__name__)
+
+MAX_RETRIES = 3
+POINT_INCREMENT = 1000
 
 class UserManager(BaseUserManager):
     def create_user(self, email, nickname, password=None):
@@ -59,40 +67,37 @@ class User(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.status
-    
+
     def update_attendance_check(self):
         # 포인트 증가 및 출석체크 여부 업데이트, 버전 증가
-        updated_rows = \
-        User.objects.filter(
-            id=self.id, 
-            attendance_check_version=self.attendance_check_version)\
-        .update(
-            point=F("point") + 1000,
+        updated_rows = User.objects.filter(
+            id=self.id, attendance_check_version=self.attendance_check_version
+        ).update(
+            point=F("point") + POINT_INCREMENT,
             is_attendance_check=True,
-            attendance_check_version=F("attendance_check_version") + 1
+            attendance_check_version=F("attendance_check_version") + 1,
         )
         return updated_rows == 1
-    
+
     def process_attendance_check(self):
         if self.is_attendance_check:
-            raise ValueError('이미 출석체크를 하셨습니다.')
-        
-        max_retries = 3
+            raise AttendanceCheckException("이미 출석체크를 하셨습니다.")
+
         retries = 0
-        while retries < max_retries:
+        while retries < MAX_RETRIES:
             try:
                 with transaction.atomic():
-                    
                     # 업데이트 성공한 경우 인스턴스 정보를 새로 고침
                     if self.update_attendance_check():
                         self.refresh_from_db()
                         return True
-            
+
             # 충돌 & 데이터베이스 에러가 발생한 경우 잠시 대기후 재시도
             except DatabaseError:
+                logger.exception("출석체크 업데이트 중 데이터베이스 에러가 발생했습니다.")
                 pass
 
             time.sleep(0.5)
             retries += 1
 
-        raise ValueError('출석체크 업데이트 실패. 다시 시도해주시길 바랍니다.') 
+        raise AttendanceCheckException("출석체크 업데이트 실패. 다시 시도해주시길 바랍니다.")

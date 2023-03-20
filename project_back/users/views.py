@@ -251,5 +251,5 @@ class AttendanceCheckView(APIView):
             user.process_attendance_check()
             return Response({"message": "출석 체크를 완료했습니다."}, status=status.HTTP_200_OK)
 
-        except ValueError as e:
+        except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

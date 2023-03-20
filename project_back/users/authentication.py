@@ -1,7 +1,12 @@
-from datetime import timedelta
-from django.utils import timezone
+# rest_framework
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+
+# django
+from django.utils import timezone
+
+# python 
+from datetime import timedelta
 
 class ConfirmTokenAuthentication(TokenAuthentication):
     def authenticate_credentials(self, key):

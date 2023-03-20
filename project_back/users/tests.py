@@ -1,7 +1,10 @@
-from django.urls import reverse
-
+# rest_framework
 from rest_framework.test import APITestCase
 
+# django
+from django.urls import reverse
+
+# users
 from .models import User
 
 class UserSignupAPIViewTestCase(APITestCase):

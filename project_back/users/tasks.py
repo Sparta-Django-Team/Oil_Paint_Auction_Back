@@ -1,5 +1,8 @@
+# celery
 from __future__ import absolute_import, unicode_literals
 from celery import shared_task
+
+# users
 from .models import User
 
 @shared_task

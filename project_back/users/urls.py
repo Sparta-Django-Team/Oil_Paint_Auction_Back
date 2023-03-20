@@ -15,7 +15,7 @@ urlpatterns = [
     path("auth/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path("auth/logout/", views.LogoutView.as_view(), name="logout"),
     
-    # # Password
+    # Password
     path("auth/password/change/", views.PasswordChangeView.as_view(), name="password_change"),
     path("auth/password/reset/", views.PasswordResetView.as_view(), name="password_reset"),
     path("auth/password/reset/<uidb64>/<token>/", views.PasswordTokenCheckView.as_view(), name="password_reset_confirm"),
@@ -25,6 +25,6 @@ urlpatterns = [
     path("users/token/", views.ObtainUserTokenView.as_view(), name="user_token"),
     path("users/", views.UserProfileView.as_view(), name="user_profile"),
     
-    # # Attendance
+    # Attendance
     path("attendance/", views.AttendanceCheckView.as_view(), name="attendance_check"),
 ]

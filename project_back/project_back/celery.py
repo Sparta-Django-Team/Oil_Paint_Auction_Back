@@ -1,13 +1,15 @@
 from __future__ import absolute_import, unicode_literals
 
-import os
-
+# celery
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project_back.settings')
+# python
+import os
 
-app = Celery('project_back')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project_back.settings")
 
-app.config_from_object('django.conf:settings', namespace='CELERY')
+app = Celery("project_back")
+
+app.config_from_object("django.conf:settings", namespace="CELERY")
 
 app.autodiscover_tasks()

@@ -48,12 +48,12 @@ class UserAdmin(BaseUserAdmin):
     list_display = ("email", "nickname", "is_admin", "point", "is_attendance_check",)
     list_filter = ("is_admin",)
     fieldsets = (
-        (None, {"fields": ("email", "password")}),
-        ("Personal info",{"fields": ("nickname", "profile_image", "point", "is_attendance_check",)},),
-        ("Permissions", {"fields": ("is_admin",)}),)
+                (None, {"fields": ("email", "password")}),
+                ("Personal info",{"fields": ("nickname", "profile_image", "point", "is_attendance_check",)},),
+                ("Permissions", {"fields": ("is_admin",)}),)
     add_fieldsets = (
-        (None,{"classes": ("wide",), 
-            "fields": ("email", "nickname", "profile_image", "point", "is_attendance_check", "password1", "password2",),},),)
+                (None,{"classes": ("wide",), 
+                "fields": ("email", "nickname", "profile_image", "point", "is_attendance_check", "password1", "password2",),},),)
     search_fields = ("email", "nickname",)
     ordering = ("email",)
     filter_horizontal = ()
