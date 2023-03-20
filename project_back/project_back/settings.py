@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
 import os, json
+from celery.schedules import crontab
 from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,9 +29,9 @@ SECRET_KEY = get_secret("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.environ.get('DEBUG', '0') == '1'
+DEBUG = True
 
-ALLOWED_HOSTS = ['backend']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -42,10 +43,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # third party packages
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
     'drf_yasg',
     'corsheaders',
+    
+    # internal apps
     'users',
     'auctions',
     'paintings',
@@ -207,10 +213,12 @@ SIMPLE_JWT = {
 }
 
 #CORS settings
-CORS_ORIGIN_WHITELIST = ['http://52.78.154.186']
+CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ORIGIN_WHITELIST = ['http://52.78.154.186']
 
 # CSRF 허용 목록을 CORS와 동일하게 설정합니다.
-CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
+# CSRF_TRUSTED_ORIGINS = CORS_ORIGIN_WHITELIST
 
 #EMAIL settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -220,3 +228,35 @@ EMAIL_HOST_USER = get_secret("EMAIL")
 EMAIL_HOST_PASSWORD = get_secret("EMAIL_PASSWORD")
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Celery 
+CELERY_BROKER_URL = 'amqp://localhost' 
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Seoul'
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+    },
+}
+
+CELERY_BEAT_SCHEDULE = {
+    'reset_attendance_check_every_midnight': {
+        'task': 'users.tasks.reset_attendance_check',
+        'schedule': crontab(minute=0, hour=0),
+    },
+}

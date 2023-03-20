@@ -1,222 +1,129 @@
-from rest_framework import serializers, exceptions
-from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+# rest_framework
+from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
-from django.contrib.auth.hashers import check_password
-from django.contrib.auth.hashers import check_password
+# simple jwt
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+# django
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import smart_bytes, force_str
+from django.contrib.auth import authenticate
 
-import re
-
+# users
 from .models import User
+from .validators import (
+    password_validator,
+    repassword_validator,
+    current_password_validator,
+    nickname_validator,
+    term_check_validator,
+    check_token_validator,
+)
 from auctions.serializers import AuctionListSerializer
 from .utils import Util
 
-#User serializer (회원가입, 회원수정)
+
+# User serializer (회원가입, 회원수정)
 class UserSerializer(serializers.ModelSerializer):
-    repassword= serializers.CharField(error_messages={'required':'비밀번호를 입력해주세요.', 'blank':'비밀번호를 입력해주세요.', 'write_only':True})    
+    repassword = serializers.CharField(
+        error_messages={
+            "required": "비밀번호를 입력해주세요.",
+            "blank": "비밀번호를 입력해주세요.",
+        },
+        write_only=True,
+    )
+    term_check = serializers.BooleanField(
+        error_messages={
+            "required": "약관동의를 확인해주세요.",
+            "blank": "약관동의를 확인해주세요.",
+        },
+        write_only=True,
+        validators=[term_check_validator],
+    )
 
     class Meta:
         model = User
-        fields = ('email', 'nickname', 'password', 'repassword','profile_image', 'term_check',)
-        extra_kwargs = {'email': {
-                        'error_messages': {
-                        'required': '이메일을 입력해주세요.',
-                        'invalid': '알맞은 형식의 이메일을 입력해주세요.',
-                        'blank':'이메일을 입력해주세요.',}},
-                        
-                        'nickname': {
-                        'error_messages': {
-                        'required': '닉네임을 입력해주세요.',
-                        'blank':'닉네임을 입력해주세요',}},
-                        
-                        'password':{'write_only':True,
-                        'error_messages': {
-                        'required':'비밀번호를 입력해주세요.',
-                        'blank':'비밀번호를 입력해주세요.',}},
-                        } #extra_kwargs에 write_only하여 password만큼은 직렬화 시키지 않겠다.
+        fields = (
+            "email",
+            "nickname",
+            "password",
+            "repassword",
+            "profile_image",
+            "term_check",
+        )
+        extra_kwargs = {
+            "email": {
+                "error_messages": {
+                    "required": "이메일을 입력해주세요.",
+                    "invalid": "알맞은 형식의 이메일을 입력해주세요.",
+                    "blank": "이메일을 입력해주세요.",
+                },
+                "validators": [
+                    UniqueValidator(
+                        queryset=User.objects.all(),
+                        message="이미 사용중인 이메일 입니다.",
+                    )
+                ],
+            },
+            "nickname": {
+                "error_messages": {
+                    "required": "닉네임을 입력해주세요.",
+                    "blank": "닉네임을 입력해주세요",
+                    "unique": "이 이메일은 이미 사용 중입니다.",
+                },
+                "validators": [
+                    nickname_validator,
+                    UniqueValidator(
+                        queryset=User.objects.all(),
+                        message="이미 사용중인 닉네임 입니다.",
+                    ),
+                ],
+            },
+            "password": {
+                "write_only": True,
+                "error_messages": {
+                    "required": "비밀번호를 입력해주세요.",
+                    "blank": "비밀번호를 입력해주세요.",
+                },
+                "validators": [password_validator],
+            },
+        }
 
     def validate(self, data):
-        PASSWORD_VALIDATION = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,16}"
-        PASSWORD_PATTERN = r"(.)\1+\1"
-        NICKNAME_VALIDATION = r"^(?=.*[$@$!%*?&]){1,2}"
-        
-        nickname = data.get('nickname')
-        password = data.get('password')
-        repassword = data.get('repassword')
-        term_check = data.get('term_check')
-        
-        #닉네임 유효성 검사
-        if re.search(NICKNAME_VALIDATION, str(nickname)):
-            raise serializers.ValidationError(detail={"nickname":"닉네임은 2자 이하 또는 특수문자를 포함할 수 없습니다."})
-        
-        if password:
-            #비밀번호 일치
-            if password != repassword:
-                raise serializers.ValidationError(detail={"password":"비밀번호가 일치하지 않습니다."})
-            
-            #비밀번호 유효성 검사
-            if not re.search(PASSWORD_VALIDATION, str(password)):
-                raise serializers.ValidationError(detail={"password":"비밀번호는 8자 이상 16자이하의 영문 대/소문자, 숫자, 특수문자 조합이어야 합니다. "})
-            
-            #비밀번호 동일여부 검사
-            if re.search(PASSWORD_PATTERN, str(password)):
-                raise serializers.ValidationError(detail={"password":"비밀번호는 3자리 이상 동일한 영문,숫자,특수문자 사용 불가합니다. "})
-        
-        #이용약관 확인 검사
-        if term_check == False:
-            raise serializers.ValidationError(detail={"term_check":"약관동의를 확인해주세요."})
-        
+        password = data.get("password")
+        repassword = data.get("repassword")
+
+        repassword_validator(password, repassword)
         return data
-    
-    #회원가입 create
+
+    # 회원가입 create
     def create(self, validated_data):
-        email = validated_data['email']
-        nickname = validated_data['nickname']
-        term_check = validated_data['term_check']
-        user= User(
-            nickname=nickname,
-            email=email,
-            term_check=term_check
-        )
-        user.set_password(validated_data['password'])
+        email = validated_data["email"]
+        nickname = validated_data["nickname"]
+
+        user = User(nickname=nickname, email=email)
+        user.set_password(validated_data["password"])
         user.save()
+
         return user
 
-    #회원정보 수정 update
+    # 회원정보 수정 update
     def update(self, instance, validated_data):
-        instance.nickname = validated_data.get('nickname', instance.nickname)
-        instance.profile_image = validated_data.get('profile_image', instance.profile_image)
+        instance.nickname = validated_data.get("nickname", instance.nickname)
+        instance.profile_image = validated_data.get("profile_image", instance.profile_image)
         instance.save()
         return instance
 
-#비밀번호 변경 serializer
-class ChangePasswordSerializer(serializers.ModelSerializer):
-    repassword= serializers.CharField(error_messages={'required':'비밀번호를 입력해주세요.', 'blank':'비밀번호를 입력해주세요.', 'write_only':True})    
-    class Meta:
-        model = User
-        fields = ('password', 'repassword',)
-        extra_kwargs = {'password':{'write_only':True,
-                        'error_messages': {
-                        'required':'비밀번호를 입력해주세요.',
-                        'blank':'비밀번호를 입력해주세요.',}},}
 
-    def validate(self, data):
-        PASSWORD_VALIDATION = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,16}"
-        PASSWORD_PATTERN = r"(.)\1+\1"
-        
-        current_password = self.context.get("request").user.password
-        password = data.get('password')
-        repassword = data.get('repassword')
-        
-        #현재 비밀번호와 바꿀 비밀번호 비교
-        if check_password(password, current_password):
-            raise serializers.ValidationError(detail={"password":"현재 사용중인 비밀번호와 동일한 비밀번호는 입력할 수 없습니다."})
-        
-        #비밀번호 일치
-        if password != repassword:
-            raise serializers.ValidationError(detail={"password":"비밀번호가 일치하지 않습니다."})
-        
-        #비밀번호 유효성 검사
-        if not re.search(PASSWORD_VALIDATION, str(password)):
-            raise serializers.ValidationError(detail={"password":"비밀번호는 8자 이상 16자이하의 영문 대/소문자, 숫자, 특수문자 조합이어야 합니다. "})
-        
-        #비밀번호 문자열 동일여부 검사
-        if re.search(PASSWORD_PATTERN, str(password)):
-            raise serializers.ValidationError(detail={"password":"비밀번호는 3자리 이상 동일한 영문/사용 사용 불가합니다. "})
-
-        return data
-    
-    #비밀번호 변경 update
-    def update(self, instance, validated_data):
-        instance.password = validated_data.get('password', instance.password)
-        instance.set_password(instance.password)
-        instance.save()
-        return instance
-
-#비밀번호 찾기 serializer
-class PasswordResetSerializer(serializers.Serializer):
-    email= serializers.EmailField(error_messages={'required':'이메일을 입력해주세요.', 'blank':'이메일을 입력해주세요.', 'invalid': '알맞은 형식의 이메일을 입력해주세요.'})    
-    
-    class Meta:
-        fields = ('email',)
-    
-    def validate(self, attrs):
-        email = attrs.get('email')
-        
-        if User.objects.filter(email=email).exists():
-            user = User.objects.get(email=email) 
-            uidb64 = urlsafe_base64_encode(smart_bytes(user.id)) 
-            token = PasswordResetTokenGenerator().make_token(user) #토큰 생성
-            
-            frontend_site = "127.0.0.1:5500" #프론트 주소
-            absurl = f'http://{frontend_site}/set_password.html?/{uidb64}/{token}' #확인된 토큰 주소 생성
-            
-            email_body = '안녕하세요? \n 비밀번호 재설정 주소입니다.\n'+ absurl #이메일 내용
-            message = {'email_body': email_body, 'to_email': user.email,'email_subject': '비밀번호 재설정'}
-            Util.send_email(message)
-            
-            return super().validate(attrs)
-        raise serializers.ValidationError(detail={"email":"잘못된 이메일입니다. 다시 입력해주세요."})
-
-#비밀번호 재설정 serializer
-class SetNewPasswordSerializer(serializers.Serializer):
-    password= serializers.CharField(error_messages={'required':'비밀번호를 입력해주세요.', 'blank':'비밀번호를 입력해주세요.', 'write_only':True}) 
-    repassword= serializers.CharField(error_messages={'required':'비밀번호를 입력해주세요.', 'blank':'비밀번호를 입력해주세요.', 'write_only':True}) 
-    token = serializers.CharField(max_length=100, write_only=True)
-    uidb64 = serializers.CharField(max_length=100, write_only=True)
-    class Meta:
-        fields = ('repassword','password','token','uidb64',)
-        
-    def validate(self, attrs):
-        PASSWORD_VALIDATION = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,16}"
-        PASSWORD_PATTERN = r"(.)\1+\1"
-        
-        password = attrs.get('password')
-        repassword = attrs.get('repassword')
-        token = attrs.get('token')
-        uidb64 = attrs.get('uidb64')
-
-        user_id = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(id=user_id)
-
-        #토큰이 유효여부
-        if PasswordResetTokenGenerator().check_token(user, token) == False:
-            raise exceptions.AuthenticationFailed("링크가 유효하지 않습니다.", 401)
-        
-        #비밀번호 일치
-        if password != repassword:
-            raise serializers.ValidationError(detail={"password":"비밀번호가 일치하지 않습니다."})
-
-        #비밀번호 유효성 검사
-        if not re.search(PASSWORD_VALIDATION, str(password)):
-            raise serializers.ValidationError(detail={"password":"비밀번호는 8자 이상 16자이하의 영문 대/소문자, 숫자, 특수문자 조합이어야 합니다. "})
-
-        #비밀번호 문자열 동일여부 검사
-        if re.search(PASSWORD_PATTERN, str(password)):
-            raise serializers.ValidationError(detail={"password":"비밀번호는 3자리 이상 동일한 영문/사용 사용 불가합니다. "})
-        
-        user.set_password(password)
-        user.save()
-        
-        
-        return super().validate(attrs)
-
-#프로필 serializer
-class ProfileSerializer(serializers.ModelSerializer):
-    like_auction = AuctionListSerializer(many=True)
-
-    class Meta:
-        model = User
-        fields = ('email', 'nickname', 'profile_image', 'point','like_auction', )
-
-#로그아웃 serializer
+# 로그아웃 serializer
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
     def validate(self, attrs):
-        self.token = attrs['refresh']
+        self.token = attrs["refresh"]
         return attrs
 
     def save(self, **kwargs):
@@ -224,5 +131,197 @@ class LogoutSerializer(serializers.Serializer):
             RefreshToken(self.token).blacklist()
 
         except TokenError:
-            raise serializers.ValidationError(detail={"만료된 토큰":"유효하지 않거나 만료된 토큰입니다."})
-    #만료된 모든 토큰 삭제: (python manage.py flushexpiredtokens) cron으로 매시간 마다 설정
+            raise serializers.ValidationError(detail={"만료된 토큰": "유효하지 않거나 만료된 토큰입니다."})
+
+
+# JWT serializer
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["email"] = user.email
+        token["nickname"] = user.nickname
+        return token
+
+
+# 비밀번호 변경 serializer
+class PasswordChangeSerializer(serializers.ModelSerializer):
+    repassword = serializers.CharField(
+        error_messages={
+            "required": "비밀번호를 입력해주세요.",
+            "blank": "비밀번호를 입력해주세요.",
+        },
+        write_only=True,
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            "password",
+            "repassword",
+        )
+        extra_kwargs = {
+            "password": {
+                "write_only": True,
+                "error_messages": {
+                    "required": "비밀번호를 입력해주세요.",
+                    "blank": "비밀번호를 입력해주세요.",
+                },
+                "validators": [password_validator],
+            },
+        }
+
+    def validate(self, data):
+        current_password = self.context.get("request").user.password
+        password = data.get("password")
+        repassword = data.get("repassword")
+
+        repassword_validator(password, repassword)
+        current_password_validator(current_password, password)
+
+        return data
+
+    def update(self, instance, validated_data):
+        instance.password = validated_data.get("password", instance.password)
+        instance.set_password(instance.password)
+        instance.save()
+        return instance
+
+
+# 비밀번호 찾기 serializer
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField(
+        error_messages={
+            "required": "이메일을 입력해주세요.",
+            "blank": "이메일을 입력해주세요.",
+            "invalid": "알맞은 형식의 이메일을 입력해주세요.",
+        }
+    )
+
+    class Meta:
+        fields = ("email",)
+
+    def validate(self, attrs):
+        try:
+            email = attrs.get("email")
+
+            user = User.objects.get(email=email)
+            uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
+            token = PasswordResetTokenGenerator().make_token(user)
+
+            frontend_site = "127.0.0.1:5500"
+            absurl = f"http://{frontend_site}/set_password.html?/{uidb64}/{token}"
+
+            email_body = "안녕하세요? \n 비밀번호 재설정 주소입니다.\n" + absurl
+            message = {
+                "email_body": email_body,
+                "to_email": user.email,
+                "email_subject": "비밀번호 재설정",
+            }
+            Util.send_email(message)
+
+            return super().validate(attrs)
+
+        except User.DoesNotExist:
+            raise serializers.ValidationError(detail={"email": "잘못된 이메일입니다. 다시 입력해주세요."})
+
+
+# 비밀번호 재설정 serializer
+class SetNewPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        error_messages={
+            "required": "비밀번호를 입력해주세요.",
+            "blank": "비밀번호를 입력해주세요.",
+        },
+        write_only=True,
+        validators=[password_validator],
+    )
+    repassword = serializers.CharField(
+        error_messages={
+            "required": "비밀번호를 입력해주세요.",
+            "blank": "비밀번호를 입력해주세요.",
+        },
+        write_only=True,
+    )
+    token = serializers.CharField(
+        max_length=100,
+        write_only=True,
+    )
+    uidb64 = serializers.CharField(
+        max_length=100,
+        write_only=True,
+    )
+
+    class Meta:
+        fields = (
+            "repassword",
+            "password",
+            "token",
+            "uidb64",
+        )
+
+    def validate(self, attrs):
+        password = attrs.get("password")
+        repassword = attrs.get("repassword")
+        token = attrs.get("token")
+        uidb64 = attrs.get("uidb64")
+
+        try:
+            user_id = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(id=user_id)
+
+            check_token_validator(user, token)
+            repassword_validator(password, repassword)
+
+            user.set_password(password)
+            user.save()
+
+            return super().validate(attrs)
+
+        except User.DoesNotExist:
+            raise serializers.ValidationError(detail={"user": "존재하지 않는 회원입니다."})
+
+
+# User Token 획득
+class TokenSerializer(serializers.Serializer):
+    email = serializers.EmailField(
+        error_messages={
+            "required": "이메일을 입력해주세요.",
+            "blank": "이메일을 입력해주세요.",
+            "invalid": "알맞은 형식의 이메일을 입력해주세요.",
+        }
+    )
+    password = serializers.CharField(
+        error_messages={
+            "required": "비밀번호를 입력해주세요.",
+            "blank": "비밀번호를 입력해주세요.",
+        },
+        write_only=True,
+    )
+
+    def validate(self, attrs):
+        user = authenticate(email=attrs["email"], password=attrs["password"])
+        user_email = self.context.get("request").user.email
+        
+        if user_email != attrs["email"]:
+            raise serializers.ValidationError(detail={"email": "현재 사용자의 이메일과 요청된 이메일이 일치하지 않습니다."})
+        
+        if not user:
+            raise serializers.ValidationError(detail={"user": "비밀번호가 일치하지 않습니다."})
+        
+        return attrs
+
+
+# 프로필 serializer
+class ProfileSerializer(serializers.ModelSerializer):
+    like_auction = AuctionListSerializer(many=True)
+
+    class Meta:
+        model = User
+        fields = (
+            "email",
+            "nickname",
+            "profile_image",
+            "point",
+            "like_auction",
+        )
