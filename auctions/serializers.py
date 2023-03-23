@@ -44,7 +44,6 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
         end_date = data.get("end_date")
 
         # 시작 입찰가는 10000원 이상 가능
-
         if start_bid < 10000:
             raise serializers.ValidationError(detail={"start_bid": "시작 입찰가는 10000원 이상만 가능합니다."})
 
@@ -57,11 +56,9 @@ class AuctionCreateSerializer(serializers.ModelSerializer):
 
 # 경매 리스트 serializer
 class AuctionListSerializer(serializers.ModelSerializer):
-    auction_like_count = serializers.SerializerMethodField()
+    auction_like_count = serializers.IntegerField()
     painting = PaintingDetailSerializer()
 
-    def get_auction_like_count(self, obj):
-        return obj.auction_like.count()
 
     class Meta:
         model = Auction
@@ -76,6 +73,7 @@ class AuctionListSerializer(serializers.ModelSerializer):
             "bidder",
             "seller",
         )
+
 
 
 # 경매 상세 serializer

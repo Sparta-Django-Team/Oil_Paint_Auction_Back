@@ -18,15 +18,25 @@ class IsOwner(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         user = request.user
-
-        # User DB에 접근했을 경우
-        if obj.email == user.email:
-            return True
         
-        # Painting과 Auction DB에 접근했을 경우
-        if obj.owner == user:
+        # User DB에 접근했을 경우
+        if hasattr(obj, 'email') and obj.email == user.email:
             return True
 
+        # Comment DB에 접근했을 경우
+        if hasattr(obj, 'user') and obj.user == user:
+            return True
+
+        # Painting과 Auction DB에 접근했을 경우
+        if hasattr(obj, 'owner') and obj.owner == user:
+            return True
+
+        if hasattr(obj.painting, 'owner') and obj.painting.owner == user:
+            return True
+
+        self.raise_permission_denied(user)
+
+    def raise_permission_denied(self, user):
         if user.is_authenticated:
             response = {"detail": "접근 권한 없습니다."}
             raise GenericAPIException(status_code=status.HTTP_403_FORBIDDEN, detail=response)
