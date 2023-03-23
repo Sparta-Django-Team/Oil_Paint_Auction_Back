@@ -18,7 +18,7 @@ POINT_INCREMENT = 1000
 
 class UserManager(BaseUserManager):
     def create_user(self, email, nickname, password=None):
-        if not email or nickname:
+        if not email or not nickname:
             raise ValueError("이메일 또는 닉네임을 작성해주세요.")
 
         user = self.model(
@@ -32,9 +32,9 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, email, nickname, password=None):
         user = self.create_user(
-            email,
-            password=password,
+            email=email,
             nickname=nickname,
+            password=password,
         )
         user.is_admin = True
         user.save(using=self._db)
@@ -66,7 +66,7 @@ class User(AbstractBaseUser):
 
     @property
     def is_staff(self):
-        return self.status
+        return self.is_admin
 
     def update_attendance_check(self):
         # 포인트 증가 및 출석체크 여부 업데이트, 버전 증가
