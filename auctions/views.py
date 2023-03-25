@@ -133,6 +133,13 @@ class AuctionCreateView(APIView):
 
 
 class AuctionDetailView(APIView):
+    '''
+    경매 낙찰 
+    1. 낙찰이 되기 전 입찰한 사람이 없으면 낙찰 불가능 (해결)
+    2. 낙찰이 되면 그림의 경매상태 False로 수정
+    3. 낙찰이 안된 사람은 경매 내역을 보고 포인트 반환
+    4. 경매 올린 소유주는 그 포인트만큼 주고, 소유주/판매자 변경(판매자는 null 값으로 변경)
+    '''
     permissions_classes = [IsOwner]
 
     def get_objects(self, auction_id):
@@ -145,22 +152,47 @@ class AuctionDetailView(APIView):
             return [IsAuthenticated()]
         return [permission() for permission in self.permission_classes]
 
+    # def refund_points(self, auction):
+    #     auction_history = AuctionHistory.objects.filter(auction=auction)
+    #     bidders = auction_history.order_by("created_at").values("bidder", "now_bid")
+    #     repayment_point = list({bidder["bidder"]: bidder for bidder in bidders}.values())
+    #     sorted_repayment_point = sorted(repayment_point, key=lambda x: x["now_bid"])[:-1]
+
+    #     for i in sorted_repayment_point:
+    #         user = User.objects.get(id=i["bidder"])
+    #         user.point += i["now_bid"]
+    #         user.save()
+    
+    # def give_points_to_owner(self, auction):
+    #     last_bid = auction.now_bid
+    #     before_owner = User.objects.get(email=auction.painting.owner)
+    #     before_owner.point += last_bid
+    #     before_owner.save()
+
+    # def change_owner_and_seller(self, auction):
+    #     after_owner = auction.bidder
+    #     painting = Painting.objects.get(id=auction.painting.id)
+    #     painting.owner = after_owner
+    #     auction.seller = None
+        
+    #     painting.save()
+    #     auction.save()
+
     # 경매 낙찰
     @swagger_auto_schema(
         operation_summary="경매 낙찰",
         responses={200: "성공", 400: "조건 에러", 403: "접근 권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def post(self, request, auction_id):
-        auction = self.get_objects(auction_id)
+        auction = self.get_objects(auction_id) 
 
         # 낙찰이 되기전 입찰한 사람이 없으면 낙찰 불가능
         if not auction.bidder:
             return Response({"message": "입찰한 사람이 없음"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # 낙찰이 되면
-        auction.painting.is_auction = False
-        auction.save()
-
+        
+        # self.refund_points(auction)
+        # self.give_points_to_owner(auction)
+        # self.change_owner_and_seller(auction)
         # 낙찰이 안된 사람은 포인트 반환
         auction_history = AuctionHistory.objects.filter(auction=auction)
 
@@ -208,8 +240,8 @@ class AuctionDetailView(APIView):
         responses={200: "성공", 400: "인풋값 에러", 403: "접근 권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def put(self, request, auction_id):
-        auction = get_object_or_404(Auction, id=auction_id)
-        serializer = AuctionBidSerializer(auction, data=request.data, context={"request": request})
+        auction = get_object_or_404(Auction.objects.select_related("painting") , id=auction_id)
+        serializer = AuctionBidSerializer(auction, data=request.data, context={"request": request, "auction": auction})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
