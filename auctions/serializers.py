@@ -6,6 +6,7 @@ from django.utils import timezone
 
 # auctions
 from .models import Auction, Comment, AuctionHistory
+from .validators import AuctionBidValidator
 
 # users
 from users.models import User
@@ -112,69 +113,53 @@ class AuctionBidSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        auction = Auction.objects.get(id=self.instance.id)
+        auction = self.context.get("auction")
         request_user = self.context.get("request").user
         user = User.objects.get(id=request_user.id)
 
-        start_bid = self.instance.start_bid  # 시작 입찰가
-        now_bid = self.instance.now_bid  # 최고 입찰가
-        enter_bid = data["now_bid"]  # user가 front에 작성한 입찰가
-        bidder = self.instance.bidder  # 최고 입찰가의 입찰자
+        start_bid = auction.start_bid  
+        now_bid = auction.now_bid  
+        bidder_id = auction.bidder_id
+        enter_bid = data["now_bid"] 
 
-        # 낙찰이 되었는지 확인
-        if auction.seller == None:
-            raise serializers.ValidationError(detail={"error": "이미 종료된 경매입니다."})
+        validator = AuctionBidValidator()
+        validator.validate_auction_status(auction)
+        validator.validate_owner_cannot_bid(request_user, auction)
+        validator.validate_not_highest_bidder(request_user, bidder_id)
+        validator.validate_sufficient_points(request_user, enter_bid)
+        validator.validate_bid_increment(enter_bid)
+        validator.validate_enter_bid_against_start_bid(enter_bid, start_bid)
+        validator.validate_enter_bid_against_now_bid(enter_bid, now_bid)
 
-        # 소유자는 입찰 못하게함
-        if request_user == auction.painting.owner:
-            raise serializers.ValidationError(detail={"error": "소유자는 입찰 할 수 없습니다."})
-
-        # 현재 입찰자와 최고가 입찰자 비교
-        if request_user == bidder:
-            raise serializers.ValidationError(detail={"error": "현재 이미 최고가로 입찰중입니다."})
-
-        # 유저 보유포인트와 입찰가 비교
-        if request_user.point < enter_bid:
-            raise serializers.ValidationError(
-                detail={"error": f"포인트가 부족합니다. 현재 보유중인 포인트는 {request_user.point} 입니다. 입찰가를 확인 해주세요."})
-
-        # 100포인트 이상 입찰가 검사
-        if enter_bid % 100 != 0:
-            raise serializers.ValidationError(detail={"error": "100 포인트 단위로 입찰 가능합니다."})
-
-        # 시작 입찰가와 입찰가 비교
-        if enter_bid < start_bid:
-            raise serializers.ValidationError(detail={"error": "시작 입찰가보다 적은 금액으로 입찰 하실 수 없습니다."})
-
-        # 현재 입찰가와 입찰가 비교
-        if enter_bid <= int(now_bid or 0):
-            raise serializers.ValidationError(detail={"error": "현재 입찰가보다 같거나 적은 금액으로 입찰 하실 수 없습니다."})
-
-        # 입찰 재시도 전의 입찰가의 포인트를 돌려줌
-        auction_history = AuctionHistory.objects.filter(auction=auction, bidder=request_user).order_by("-created_at")
-
-        if auction_history:  # 경매 거래내역이 존재할 경우
-            before_now_bid = auction_history[0].now_bid
-            user.point += before_now_bid
-            user.save()
-
-        # 경매 거래 내역 저장
-        AuctionHistory.objects.create(now_bid=enter_bid, bidder=request_user, auction=auction)
-
-        # 자기가 입력한 입찰가 포인트 차감
-        user.point -= enter_bid
-        user.save()
+        self.process_bid(auction, request_user, user, enter_bid)
 
         return data
 
     def update(self, instance, validated_data):
         instance.now_bid = validated_data.get("now_bid", instance.now_bid)
         instance.bidder = validated_data.get("bidder", self.context.get("request").user)  # 현재 user가 bidder로 바뀜
-
         instance.save()
 
         return instance
 
+    def process_bid(self, auction, request_user, user, enter_bid):
+        self.refund_previous_bid(auction, request_user, user)
+        self.create_auction_history(auction, request_user, enter_bid)
+        self.deduct_bid_points(user, enter_bid)
+    
+    def refund_previous_bid(self, auction, request_user, user):
+        auction_history = AuctionHistory.objects.filter(auction=auction, bidder=request_user).last()
+        if auction_history:  
+            before_now_bid = auction_history.now_bid
+            user.point += before_now_bid
+            user.save()
+
+    def create_auction_history(self, auction, request_user, enter_bid):
+        AuctionHistory.objects.create(now_bid=enter_bid, bidder=request_user, auction=auction)
+
+    def deduct_bid_points(self, user, enter_bid):
+        user.point -= enter_bid
+        user.save()
 
 # 경매 거래내역 serializer
 class AuctionHistoySerializer(serializers.ModelSerializer):
