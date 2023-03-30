@@ -2,7 +2,7 @@
 from django.urls import path
 
 # auctions
-from . import views
+from auctions import views
 
 urlpatterns = [
     # Auction

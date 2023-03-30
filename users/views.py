@@ -20,7 +20,7 @@ from django.contrib.auth import authenticate
 from drf_yasg.utils import swagger_auto_schema
 
 # users
-from .serializers import (
+from users.serializers import (
     UserSerializer,
     LogoutSerializer,
     CustomTokenObtainPairSerializer,
@@ -30,8 +30,8 @@ from .serializers import (
     TokenSerializer,
     ProfileSerializer,
 )
-from .models import User
-from .authentication import ConfirmTokenAuthentication
+from users.models import User
+from users.authentication import ConfirmTokenAuthentication
 
 # project
 from project_back.permissions import IsOwner

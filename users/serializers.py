@@ -13,8 +13,8 @@ from django.utils.encoding import smart_bytes, force_str
 from django.contrib.auth import authenticate
 
 # users
-from .models import User
-from .validators import (
+from users.models import User
+from users.validators import (
     password_validator,
     repassword_validator,
     current_password_validator,
@@ -22,9 +22,10 @@ from .validators import (
     term_check_validator,
     check_token_validator,
 )
-from auctions.serializers import AuctionListSerializer
-from .utils import Util
+from users.utils import Util
 
+# auctions
+from auctions.serializers import AuctionListSerializer
 
 # User serializer (회원가입, 회원수정)
 class UserSerializer(serializers.ModelSerializer):

@@ -10,7 +10,7 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project_back.settings")
 django.setup()
 
-from .models import STYLE_CHOICES
+from paintings.models import STYLE_CHOICES
 
 
 def painting_styler(img_url, style_id):
