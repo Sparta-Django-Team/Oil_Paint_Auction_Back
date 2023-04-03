@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from django.urls import path
 
 # users
-from . import views
+from users import views
 
 urlpatterns = [
     # Auth

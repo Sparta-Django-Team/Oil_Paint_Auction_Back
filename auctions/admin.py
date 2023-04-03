@@ -2,7 +2,7 @@
 from django.contrib import admin
 
 # auctions
-from .models import Auction, Comment, AuctionHistory
+from auctions.models import Auction, Comment, AuctionHistory
 
 
 class AuctionHistoryInline(admin.StackedInline):

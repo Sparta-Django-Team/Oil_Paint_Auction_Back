@@ -5,8 +5,8 @@ from rest_framework import serializers
 from django.utils import timezone
 
 # auctions
-from .models import Auction, Comment, AuctionHistory
-from .validators import AuctionBidValidator
+from auctions.models import Auction, Comment, AuctionHistory
+from auctions.validators import AuctionBidValidator
 
 # users
 from users.models import User

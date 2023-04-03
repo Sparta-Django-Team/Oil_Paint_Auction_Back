@@ -15,7 +15,7 @@ from django.core.exceptions import ValidationError
 from drf_yasg.utils import swagger_auto_schema
 
 # auctions
-from .serializers import (
+from auctions.serializers import (
     AuctionCreateSerializer,
     AuctionListSerializer,
     AuctionDetailSerializer,
@@ -25,7 +25,7 @@ from .serializers import (
     AuctionSearchSerializer,
     AuctionHistoySerializer,
 )
-from .models import Auction, Comment, AuctionHistory
+from auctions.models import Auction, Comment, AuctionHistory
 
 # paintings
 from paintings.models import Painting

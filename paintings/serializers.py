@@ -2,8 +2,8 @@
 from rest_framework import serializers
 
 # painting
-from .models import Painting
-from .styler import painting_styler
+from paintings.models import Painting
+from paintings.styler import painting_styler
 
 
 # 이미지 스타일러 serializer

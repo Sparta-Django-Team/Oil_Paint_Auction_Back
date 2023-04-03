@@ -16,14 +16,14 @@ from drf_yasg.utils import swagger_auto_schema
 from project_back.permissions import IsOwner
 
 # paintings
-from .models import Painting
-from .serializers import (
+from paintings.models import Painting
+from paintings.serializers import (
     PaintingListSerializer,
     PaintingCreateSerializer,
     ImageSerializer,
     PaintingDetailSerializer,
 )
-from .models import Painting, STYLE_CHOICES
+from paintings.models import Painting, STYLE_CHOICES
 
 
 ####유화#####

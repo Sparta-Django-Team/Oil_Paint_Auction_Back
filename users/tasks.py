@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 
 # users
-from .models import User
+from users.models import User
 
 @shared_task
 def reset_attendance_check():
