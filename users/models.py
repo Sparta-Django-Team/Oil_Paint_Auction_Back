@@ -45,6 +45,7 @@ class User(AbstractBaseUser):
     email = models.EmailField("이메일", max_length=100, unique=True)
     nickname = models.CharField("닉네임", max_length=10, unique=True)
     profile_image = models.ImageField("프로필 사진", default="default_profile_pic.jpg", upload_to="profile_pics")
+    is_active = models.BooleanField("로그인 가능", default=True)
     is_admin = models.BooleanField("어드민", default=False)
     point = models.PositiveIntegerField("포인트", default=10000)
     is_attendance_check = models.BooleanField("출석체크 여부", default=False)

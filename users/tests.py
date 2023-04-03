@@ -222,7 +222,7 @@ class UserAPIViewTestCase(APITestCase):
         response = self.client.put(
             path=reverse("user_view"),
             HTTP_AUTHORIZATION=f"Bearer {access_token}",
-            data={"nickname":"","password":"Test1234!", "repassword":"Test1234!"} #비밀번호가 필수값으로 들어가버린다.
+            data={"nickname":"","password":"Test1234!", "repassword":"Test1234!"} 
         )
         self.assertEqual(response.status_code, 400)
     

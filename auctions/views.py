@@ -240,7 +240,7 @@ class AuctionDetailView(APIView):
         responses={200: "성공", 400: "인풋값 에러", 403: "접근 권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def put(self, request, auction_id):
-        auction = get_object_or_404(Auction.objects.select_related("painting") , id=auction_id)
+        auction = get_object_or_404(Auction.objects.select_related("painting").select_for_update() , id=auction_id)
         serializer = AuctionBidSerializer(auction, data=request.data, context={"request": request, "auction": auction})
         if serializer.is_valid():
             serializer.save()
