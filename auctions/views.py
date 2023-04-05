@@ -94,7 +94,7 @@ class AuctionMyListView(APIView):
         responses={200: "성공", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def get(self, request):
-        auction = get_list_or_404(Auction, seller=request.user.id)
+        auction = get_list_or_404(Auction.objects.annotate(auction_like_count=Count("auction_like")), seller=request.user.id)
         serializer = AuctionListSerializer(auction, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -152,31 +152,31 @@ class AuctionDetailView(APIView):
             return [IsAuthenticated()]
         return [permission() for permission in self.permission_classes]
 
-    # def refund_points(self, auction):
-    #     auction_history = AuctionHistory.objects.filter(auction=auction)
-    #     bidders = auction_history.order_by("created_at").values("bidder", "now_bid")
-    #     repayment_point = list({bidder["bidder"]: bidder for bidder in bidders}.values())
-    #     sorted_repayment_point = sorted(repayment_point, key=lambda x: x["now_bid"])[:-1]
+    def refund_points(self, auction):
+        auction_history = AuctionHistory.objects.filter(auction=auction)
+        bidders = auction_history.order_by("created_at").values("bidder", "now_bid")
+        repayment_point = list({bidder["bidder"]: bidder for bidder in bidders}.values())
+        sorted_repayment_point = sorted(repayment_point, key=lambda x: x["now_bid"])[:-1]
 
-    #     for i in sorted_repayment_point:
-    #         user = User.objects.get(id=i["bidder"])
-    #         user.point += i["now_bid"]
-    #         user.save()
+        for i in sorted_repayment_point:
+            user = User.objects.get(id=i["bidder"])
+            user.point += i["now_bid"]
+            user.save()
     
-    # def give_points_to_owner(self, auction):
-    #     last_bid = auction.now_bid
-    #     before_owner = User.objects.get(email=auction.painting.owner)
-    #     before_owner.point += last_bid
-    #     before_owner.save()
+    def give_points_to_owner(self, auction):
+        last_bid = auction.now_bid
+        before_owner = User.objects.get(email=auction.painting.owner)
+        before_owner.point += last_bid
+        before_owner.save()
 
-    # def change_owner_and_seller(self, auction):
-    #     after_owner = auction.bidder
-    #     painting = Painting.objects.get(id=auction.painting.id)
-    #     painting.owner = after_owner
-    #     auction.seller = None
+    def change_owner_and_seller(self, auction):
+        after_owner = auction.bidder
+        painting = Painting.objects.get(id=auction.painting.id)
+        painting.owner = after_owner
+        auction.seller = None
         
-    #     painting.save()
-    #     auction.save()
+        painting.save()
+        auction.save()
 
     # 경매 낙찰
     @swagger_auto_schema(
@@ -190,36 +190,9 @@ class AuctionDetailView(APIView):
         if not auction.bidder:
             return Response({"message": "입찰한 사람이 없음"}, status=status.HTTP_400_BAD_REQUEST)
         
-        # self.refund_points(auction)
-        # self.give_points_to_owner(auction)
-        # self.change_owner_and_seller(auction)
-        # 낙찰이 안된 사람은 포인트 반환
-        auction_history = AuctionHistory.objects.filter(auction=auction)
-
-        bidders = auction_history.order_by("created_at").values("bidder", "now_bid")
-        repayment_point = list({bidder["bidder"]: bidder for bidder in bidders}.values())
-        sorted_repayment_point = sorted(repayment_point, key=lambda x: x["now_bid"])[:-1]
-
-        for i in sorted_repayment_point:
-            user = User.objects.get(id=i["bidder"])
-            user.point += i["now_bid"]
-
-            user.save()
-
-        # 경매에 올린 소유주는 그 포인트만큼 줌, 소유주/판매자 변경
-        last_bid = auction.now_bid
-        before_owner = User.objects.get(email=auction.painting.owner)
-
-        before_owner.point += last_bid  # 포인트 돌려줌
-        before_owner.save()
-
-        after_owner = auction.bidder
-        painting = Painting.objects.get(id=auction.painting.id)
-        painting.owner = after_owner  # 소유주 변경
-        auction.seller = None  # 판매자 null 값
-
-        auction.save()
-        painting.save()
+        self.refund_points(auction)
+        self.give_points_to_owner(auction)
+        self.change_owner_and_seller(auction)
 
         return Response({"message": "낙찰 완료"}, status=status.HTTP_200_OK)
 
@@ -229,7 +202,7 @@ class AuctionDetailView(APIView):
         responses={200: "성공", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def get(self, request, auction_id):
-        auction = get_object_or_404(Auction, id=auction_id)
+        auction = get_object_or_404(Auction.objects.filter(id=auction_id).annotate(auction_like_count=Count("auction_like")))
         serializer = AuctionDetailSerializer(auction)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -237,7 +210,7 @@ class AuctionDetailView(APIView):
     @swagger_auto_schema(
         request_body=AuctionBidSerializer,
         operation_summary="경매 입찰가 등록",
-        responses={200: "성공", 400: "인풋값 에러", 403: "접근 권한 없음", 404: "찾을 수 없음", 500: "서버 에러"},
+        responses={200: "성공", 400: "인풋값 에러", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def put(self, request, auction_id):
         auction = get_object_or_404(Auction.objects.select_related("painting").select_for_update() , id=auction_id)

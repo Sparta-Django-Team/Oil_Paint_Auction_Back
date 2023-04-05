@@ -79,11 +79,8 @@ class AuctionListSerializer(serializers.ModelSerializer):
 
 # 경매 상세 serializer
 class AuctionDetailSerializer(serializers.ModelSerializer):
-    auction_like_count = serializers.SerializerMethodField()
+    auction_like_count = serializers.IntegerField()
     painting = PaintingDetailSerializer()
-
-    def get_auction_like_count(self, obj):
-        return obj.auction_like.count()
 
     class Meta:
         model = Auction

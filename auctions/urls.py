@@ -15,6 +15,6 @@ urlpatterns = [
     path("search/", views.AuctionSearchView.as_view(), name="auction_search"),
     
     # Auction Comment
-    path("<int:auction_id>/comments/", views.CommentView.as_view(), name="comment_view"),
+    path("<int:auction_id>/comments/", views.CommentView.as_view(), name="comment"),
     path("<int:auction_id>/comments/<int:comment_id>/", views.CommentDetailView.as_view(), name="comment_detail"),
 ]

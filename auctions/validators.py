@@ -1,9 +1,13 @@
+# rest_framework
 from rest_framework import serializers
+
+# django
+from django.utils import timezone
 
 
 class AuctionBidValidator:
     def validate_auction_status(self, auction):
-        if auction.seller_id is None:
+        if auction.end_date < timezone.now(): 
             raise serializers.ValidationError(detail={"error": "이미 종료된 경매입니다."})
 
     def validate_owner_cannot_bid(self, request_user, auction):
