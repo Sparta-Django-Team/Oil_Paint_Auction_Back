@@ -73,7 +73,6 @@ class UserSerializer(serializers.ModelSerializer):
                 "error_messages": {
                     "required": "닉네임을 입력해주세요.",
                     "blank": "닉네임을 입력해주세요",
-                    "unique": "이 이메일은 이미 사용 중입니다.",
                 },
                 "validators": [
                     nickname_validator,

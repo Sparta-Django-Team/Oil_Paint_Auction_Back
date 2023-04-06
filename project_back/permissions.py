@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.permissions import BasePermission
 from rest_framework.exceptions import APIException
 
+from auctions.models import Auction
 
 class GenericAPIException(APIException):
     def __init__(self, status_code, detail=None, code=None):
@@ -26,12 +27,13 @@ class IsOwner(BasePermission):
         # Comment DB에 접근했을 경우
         if hasattr(obj, 'user') and obj.user == user:
             return True
-
+        
         # Painting과 Auction DB에 접근했을 경우
         if hasattr(obj, 'owner') and obj.owner == user:
             return True
 
-        if hasattr(obj.painting, 'owner') and obj.painting.owner == user:
+        # Auction DB에 접근했을 경우
+        if isinstance(obj, Auction) and hasattr(obj, 'painting') and obj.painting.owner == user:
             return True
 
         self.raise_permission_denied(user)

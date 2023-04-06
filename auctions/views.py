@@ -39,7 +39,7 @@ from project_back.permissions import IsOwner
 
 #####경매#####
 class AuctionListView(APIView):
-    permissions_classes = [AllowAny]
+    permission_classes = [AllowAny]
 
     # 경매 리스트
     @swagger_auto_schema(
@@ -86,7 +86,7 @@ class AuctionListView(APIView):
 
 
 class AuctionMyListView(APIView):
-    permissions_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     # 나의 경매 리스트
     @swagger_auto_schema(
@@ -140,7 +140,7 @@ class AuctionDetailView(APIView):
     3. 낙찰이 안된 사람은 경매 내역을 보고 포인트 반환
     4. 경매 올린 소유주는 그 포인트만큼 주고, 소유주/판매자 변경(판매자는 null 값으로 변경)
     '''
-    permissions_classes = [IsOwner]
+    permission_classes = [IsOwner]
 
     def get_objects(self, auction_id):
         auction = get_object_or_404(Auction, id=auction_id)
@@ -280,7 +280,7 @@ class AuctionHistoryView(APIView):
         auction_history = AuctionHistory.objects.filter(auction=auction_id).order_by("-created_at")
         serializer = AuctionHistoySerializer(auction_history, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
+        
 
 #####댓글#####
 class CommentView(APIView):
