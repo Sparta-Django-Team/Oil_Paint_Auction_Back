@@ -218,9 +218,9 @@ class UserProfileView(APIView):
             return Response({"message": "회원정보 수정 성공"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # 회원정보 삭제
+    # 회원탈퇴
     @swagger_auto_schema(
-        operation_summary="회원정보 삭제",
+        operation_summary="회원탈퇴",
         responses={200: "성공", 401: "인증 오류", 403: "권한 오류", 404: "찾을 수 없음", 500: "서버 에러"},
     )
     def delete(self, request):
@@ -228,7 +228,8 @@ class UserProfileView(APIView):
 
         user_id = self.confrim_token(token)
         user = self.get_objects(user_id)
-        user.delete()
+        user.is_active = False
+        user.save()
         return Response({"message": "회원 삭제 성공"}, status=status.HTTP_200_OK)
 
 
